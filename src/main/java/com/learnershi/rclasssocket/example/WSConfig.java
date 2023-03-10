@@ -18,8 +18,10 @@ public class WSConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/gs-guide-websocket")
-                .setAllowedOrigins("http://127.0.0.1:5173")
-                .withSockJS();
+        registry.addEndpoint("/connect")
+                .setAllowedOriginPatterns("*")
+                .withSockJS()
+                .setHeartbeatTime(10000)
+                ;
     }
 }

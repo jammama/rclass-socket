@@ -1,0 +1,14 @@
+
+#port
+server:
+    port: 1122
+
+#mongodb
+spring:
+    data:
+        mongodb:
+            host: 192.168.1.93
+            port: 27017
+            database: rclass
+            username: rclass
+            password: fjsjtmgkdl1!
