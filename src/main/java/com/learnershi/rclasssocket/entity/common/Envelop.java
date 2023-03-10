@@ -9,21 +9,17 @@ import lombok.experimental.Accessors;
 
 /**
  * 웹소켓으로 전달할 Data의 wrapper
+ * 필요 없을듯..
  */
 @Getter
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Envelop {
     private MessageType messageType;
     private String groupId;
     private String receiver;
     private Object data;
-
-    @Builder
-    public static Envelop of(MessageType messageType, String groupId, String receiver, Object data) {
-        return new Envelop(messageType, groupId, receiver, data);
-    }
-
 
 }

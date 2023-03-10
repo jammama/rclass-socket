@@ -14,5 +14,6 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 public class MiniWindow extends ClassRoomEntity {
-    private Object newMiniWindow;  
+    private Object newMiniWindow;
+
 }
