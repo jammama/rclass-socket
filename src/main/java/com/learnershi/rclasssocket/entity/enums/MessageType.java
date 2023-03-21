@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public enum MessageType {
 
+    // test
+    GREET,                  // 연결 확인
+    
     // ClassRoom
     CONNECT,                // 선생님 연결   -TODO User:(변경된 user)
     DISCONNECT,             // 선생님 끊김   -TODO User:(변경된 user)
@@ -61,5 +64,5 @@ public enum MessageType {
     SHARE_VIRTUAL_TOOL_ANIMATIONS,	// VIRTUAL TOOLS animations
 
 	SPOTLIGHT, 				 // 스포트라이트
-	CLOSE_SPOTLIGHT			 // 스포트라이트 닫기
+    END, START, CLOSE_SPOTLIGHT			 // 스포트라이트 닫기
 }

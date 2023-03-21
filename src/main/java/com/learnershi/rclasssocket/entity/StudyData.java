@@ -11,7 +11,6 @@ import java.util.List;
 /**
  * StudyData
  *
- * @author Ji Won
  */
 @Accessors(chain = true)
 @NoArgsConstructor

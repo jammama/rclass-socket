@@ -1,4 +1,4 @@
-package com.learnershi.rclasssocket.example;
+package com.learnershi.rclasssocket.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

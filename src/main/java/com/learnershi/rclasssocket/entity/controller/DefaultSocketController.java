@@ -1,7 +1,6 @@
 package com.learnershi.rclasssocket.entity.controller;
 
 import com.learnershi.rclasssocket.entity.common.Envelop;
-import com.learnershi.rclasssocket.entity.enums.UserType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

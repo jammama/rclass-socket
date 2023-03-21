@@ -4,6 +4,8 @@ import com.learnershi.rclasssocket.entity.ClassRoom;
 import com.learnershi.rclasssocket.entity.StudyData;
 import com.learnershi.rclasssocket.entity.User;
 import com.learnershi.rclasssocket.entity.common.Envelop;
+import com.learnershi.rclasssocket.entity.enums.MessageType;
+import com.learnershi.rclasssocket.entity.enums.UserType;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -49,8 +51,10 @@ public class SocketController extends DefaultSocketController {
      */
     @MessageMapping("/{classRoomId}/reject")
     @SendTo({TO_TEACHER, TO_STUDENT})
-    public User rejectUser(User user) {
-        return user;
+    public Envelop rejectUser(User user) {
+        return Envelop.of(MessageType.REJECT, user)
+                .classRoom("classRoomId")
+                .to(UserType.A);
     }
 
     /**
@@ -60,8 +64,10 @@ public class SocketController extends DefaultSocketController {
      */
     @MessageMapping("/{classRoomId}/start")
     @SendTo({TO_TEACHER, TO_STUDENT})
-    public String startClass() {
-        return "start";
+    public Envelop startClass() {
+        return Envelop.of(MessageType.START, "end")
+                .classRoom("classRoomId")
+                .to(UserType.A);
     }
 
     /**
@@ -71,8 +77,10 @@ public class SocketController extends DefaultSocketController {
      */
     @MessageMapping("/{classRoomId}/end")
     @SendTo({TO_TEACHER, TO_STUDENT})
-    public String endClass() {
-        return "end";
+    public Envelop endClass() {
+        return Envelop.of(MessageType.END, "end")
+                .classRoom("classRoomId")
+                .to(UserType.A);
     }
 
     /**
@@ -82,8 +90,10 @@ public class SocketController extends DefaultSocketController {
      */
     @MessageMapping("/{classRoomId}/sync")
     @SendTo({TO_TEACHER, TO_STUDENT})
-    public StudyData sync(StudyData studyData) {
-        return studyData;
+    public Envelop sync(StudyData studyData, String classRoomId) {
+        return Envelop.of(MessageType.SYNC, studyData)
+                .classRoom(classRoomId)
+                .to(UserType.A);
     }
 
     /**
