@@ -17,7 +17,7 @@ import lombok.experimental.Accessors;
 public class Envelop {
     private MessageType msgType;
     private String classRoomId;
-    private UserType receiver;
+    private UserType userType;
     private Object data;
 
     /**
@@ -32,7 +32,7 @@ public class Envelop {
     }
 
     public Envelop to(UserType userType){
-        this.receiver = userType;
+        this.userType = userType;
         return this;
     }
 

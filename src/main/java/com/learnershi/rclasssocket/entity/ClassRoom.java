@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 /**
  * ClassRoom
  *
- * @author Ji Won
  */
 @Accessors(chain = true)
 @NoArgsConstructor
@@ -45,6 +44,9 @@ public class ClassRoom {
     private boolean isSync;             // 동기화 여부
 
 
+    public ClassRoom(String teacherSeq) {
+        this.teacherSeq = teacherSeq;
+    }
     @Builder
     private ClassRoom(String teacherSeq, String teacherName, ClassState state) {
         this.teacherSeq = teacherSeq;

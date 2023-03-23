@@ -9,14 +9,11 @@ import org.springframework.lang.Nullable;
 /**
  * 사용자
  *
- * @author Ji Won
  */
 @Accessors(chain = true)
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-public class User extends ClassRoomEntity{
+public class User {
     /**
      * 세션 관리용 사용자키
      */
@@ -53,10 +50,12 @@ public class User extends ClassRoomEntity{
      */
     String studyMode;
     
-    @Builder
-    private User(String seq, @Nullable String userName, @Nullable UserState status) {
+    public User(String seq){
+        this.seq = seq;
+    }
+
+    public User(String seq, @Nullable String userName) {
         this.userName = userName;
-        this.status = status;
         this.seq = seq;
     }
 }

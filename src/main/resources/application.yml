@@ -12,11 +12,11 @@ spring:
             database: rclass
             username: rclass
             password: fjsjtmgkdl1!
+            authentication-database: admin
 
     kafka:
         consumer:
             bootstrap-servers: 192.168.1.93:9092
-
             properties:
                 spring.json.trusted.packages: "*"
             group-id: consumer-group
