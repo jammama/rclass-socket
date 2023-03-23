@@ -2,7 +2,6 @@ package com.learnershi.rclasssocket.example;
 
 import com.learnershi.rclasssocket.entity.common.Envelop;
 import com.learnershi.rclasssocket.entity.enums.MessageType;
-import com.learnershi.rclasssocket.entity.enums.UserType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -17,7 +16,7 @@ public class GreetingController {
     @MessageMapping("/hello")
     public void sendGreet(HelloMessage message) throws Exception {
         Thread.sleep(1000);
-        kafkaTemplate.send("greetings", Envelop.of(MessageType.GREET, message).to(UserType.A).classRoom("1"));
+        kafkaTemplate.send("greetings", Envelop.of(MessageType.GREET, message));
     }
 
 }

@@ -1,4 +1,4 @@
-package com.learnershi.rclasssocket.entity.controller;
+package com.learnershi.rclasssocket.controller;
 
 import com.learnershi.rclasssocket.entity.ClassRoom;
 import com.learnershi.rclasssocket.entity.StudyData;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Controller;
 @Controller
 @MessageMapping("/classRoom")
 public class SocketController extends DefaultSocketController {
-
     public SocketController(SimpMessagingTemplate simpMessagingTemplate) {
         super(simpMessagingTemplate);
     }
@@ -26,7 +25,6 @@ public class SocketController extends DefaultSocketController {
      * @return 메세지
      */
     @MessageMapping("/test/{classRoomId}")
-    @SendTo({"/student/{classRoomId}", "/teacher/{classRoomId}"})
     public Envelop sendMessage(Envelop envelop) {
         return envelop;
     }
@@ -38,7 +36,6 @@ public class SocketController extends DefaultSocketController {
      * @return 클래스룸 정보
      */
     @MessageMapping("/{classRoomId}")
-    @SendTo({TO_TEACHER, TO_STUDENT})
     public ClassRoom modifyClassRoom(ClassRoom classRoom) {
         return classRoom;
     }
@@ -50,7 +47,6 @@ public class SocketController extends DefaultSocketController {
      * @return 사용자 정보
      */
     @MessageMapping("/{classRoomId}/reject")
-    @SendTo({TO_TEACHER, TO_STUDENT})
     public Envelop rejectUser(User user) {
         return Envelop.of(MessageType.REJECT, user)
                 .classRoom("classRoomId")
@@ -63,7 +59,6 @@ public class SocketController extends DefaultSocketController {
      * @return 메세지
      */
     @MessageMapping("/{classRoomId}/start")
-    @SendTo({TO_TEACHER, TO_STUDENT})
     public Envelop startClass() {
         return Envelop.of(MessageType.START, "end")
                 .classRoom("classRoomId")
@@ -76,7 +71,6 @@ public class SocketController extends DefaultSocketController {
      * @return 메세지
      */
     @MessageMapping("/{classRoomId}/end")
-    @SendTo({TO_TEACHER, TO_STUDENT})
     public Envelop endClass() {
         return Envelop.of(MessageType.END, "end")
                 .classRoom("classRoomId")
@@ -98,8 +92,6 @@ public class SocketController extends DefaultSocketController {
 
     /**
      * 학습 관련 메세지를 공유한다.
-     *
-     * @return envelop
      */
     @MessageMapping("/{classRoomId}/studyAction")
     public void studyAction(Envelop envelop) {

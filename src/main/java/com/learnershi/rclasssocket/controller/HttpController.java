@@ -1,4 +1,4 @@
-package com.learnershi.rclasssocket.entity.controller;
+package com.learnershi.rclasssocket.controller;
 
 import com.learnershi.rclasssocket.entity.ClassRoom;
 import com.learnershi.rclasssocket.entity.enums.UserType;
