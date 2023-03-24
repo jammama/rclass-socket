@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class ClassRoomUserRepositoryImpl implements ClassRoomUserRepository {
     private static Map<String, Map<String, User>> classroomUserMap;
-    private ClassRoomRepository classRoomRepository;
 
     public ClassRoomUserRepositoryImpl() {
         if (classroomUserMap == null) {

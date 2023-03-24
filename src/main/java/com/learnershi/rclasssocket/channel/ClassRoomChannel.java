@@ -6,6 +6,7 @@ import com.learnershi.rclasssocket.entity.enums.UserType;
 import com.learnershi.rclasssocket.repository.ClassRoomRepository;
 import com.learnershi.rclasssocket.repository.ClassRoomUserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
 /**
  * ClassRoom 전송 채널
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ClassRoomChannel {
@@ -25,7 +27,7 @@ public class ClassRoomChannel {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     // 소켓 publish 주소
-    private final String TO_USER = "/user/%s";
+    private final String DESTINATION = "/msg";
 
     /**
      * userSeq에 해당하는 사용자에게 envelop을 전송한다.
@@ -34,7 +36,7 @@ public class ClassRoomChannel {
      * @param envelop 메세지 객체
      */
     public void sendToUser(String userSeq, Envelop envelop) {
-        simpMessagingTemplate.convertAndSend(String.format(TO_USER, userSeq), envelop);
+        simpMessagingTemplate.convertAndSendToUser(userSeq, DESTINATION, envelop);
     }
 
     /**
@@ -46,6 +48,7 @@ public class ClassRoomChannel {
      * @param envelop 메세지 객체
      */
     public void send(Envelop envelop) {
+        log.info("ClassRoomChannel.send - msgType: {}", envelop.getMsgType());
         String classRoomId = envelop.getClassRoomId();
         getClassRoomUsersByType(classRoomId, envelop.getUserType()).subscribe(users ->
                 users.forEach(user ->
