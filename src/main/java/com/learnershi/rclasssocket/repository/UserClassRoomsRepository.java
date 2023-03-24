@@ -1,5 +1,6 @@
 package com.learnershi.rclasssocket.repository;
 
+
 import com.learnershi.rclasssocket.entity.UserClassRooms;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Mono;
