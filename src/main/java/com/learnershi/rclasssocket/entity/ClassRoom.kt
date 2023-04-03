@@ -11,7 +11,7 @@ import java.time.LocalDateTime
  * ClassRoom
  *
  */
-class ClassRoom(
+data class ClassRoom(
     @Id
     var id: String? = null,
     // 강사 seq
@@ -37,7 +37,7 @@ class ClassRoom(
     val startDate: LocalDateTime? = null,
     // 종료 시간
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private var endDate: LocalDateTime? = null,
+    var endDate: LocalDateTime? = null,
 ) {
 
     @get:JsonIgnore

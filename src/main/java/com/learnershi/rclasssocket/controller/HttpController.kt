@@ -1,34 +1,40 @@
 package com.learnershi.rclasssocket.controller
 
-import com.learnershi.rclasssocket.entity.ClassRoom
-import com.learnershi.rclasssocket.entity.enums.UserType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RestController
+import com.learnershi.rclasssocket.service.ClassRoomService
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.reactive.function.server.ServerResponse
+import reactor.core.publisher.Mono
 
 @RestController
 class HttpController(
+    private val classRoomService: ClassRoomService
 ) {
     /**
-     * 해당 user의 classRoom List를 조회한다.
+     * classRoomId로 classRoom을 조회한다.
      *
-     * @param userSeq userSeq
-     * @param userType userType
-     * @return classRoom List
+     * @param classRoomId 클래스룸Id
+     * @return classRoom 생성된 클래스
      */
-    @GetMapping("/classRoomList/{userSeq}/{userType}")
-    fun getClassRoomList(
-        @PathVariable userSeq: String,
-        @PathVariable userType: UserType
-    ): List<ClassRoom>? {
-        return null
+    @GetMapping("/classRoom/{classRoomId}")
+    fun getClassRoom(
+        @PathVariable classRoomId : String
+    ): ResponseEntity<Mono<ServerResponse>> {
+        return ResponseEntity.ok().body(classRoomService.getClassRoom(classRoomId))
     }
-//
-//    @PostMapping("/classRoom/{userSeq}/create")
-//    fun createClassRoom(
-//        @PathVariable userSeq: String,
-//        @RequestParam userName: String
-//    ): ClassRoom? {
-//        return
-//    }
+
+    /**
+     * classRoom을 생성한다
+     *
+     * @param userSeq 사용자 seq
+     * @param userName 사용자명
+     * @return classRoom 생성된 클래스
+     */
+    @PostMapping("/classRoom/{userSeq}/create")
+    fun createClassRoom(
+        @PathVariable userSeq: String,
+        @RequestParam userName: String
+    ): Mono<ServerResponse> {
+        return classRoomService.createClassRoom(userSeq, userName)
+    }
 }

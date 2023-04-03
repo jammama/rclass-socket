@@ -5,8 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Repository
 class SessionUserRepository {
-    @JvmRecord
-    internal data class UserSession(val sessionId: String, val userSeq: String, val classRoomId: String)
+    data class UserSession(val sessionId: String, val userSeq: String, val classRoomId: String)
 
     init {
         if (userSessionMap == null) {
