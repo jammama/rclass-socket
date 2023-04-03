@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.learnershi.rclasssocket.entity.enums.*
 
 /**
- * ClassRoom
+ * ClassRoom flat down
  *
  */
 class ClassRoomInfo(classRoom: ClassRoom) {
@@ -21,7 +21,7 @@ class ClassRoomInfo(classRoom: ClassRoom) {
     @JsonProperty("roomState")
     var roomState: ClassState?
 
-    var title: String
+    var title: String?
 
     init {
         id = classRoom.id!!
@@ -31,10 +31,10 @@ class ClassRoomInfo(classRoom: ClassRoom) {
         title = classRoom.title ?: "Study Room"
     }
 
-    override fun equals(obj: Any?): Boolean {
-        if (obj == null) return false
-        if (obj === this) return true
-        if (obj !is ClassRoomInfo) return false
-        return id == obj.id
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other === this) return true
+        if (other !is ClassRoomInfo) return false
+        return id == other.id
     }
 }

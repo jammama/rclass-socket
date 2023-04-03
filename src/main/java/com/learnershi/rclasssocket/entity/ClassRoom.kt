@@ -12,35 +12,34 @@ import java.time.LocalDateTime
  *
  */
 class ClassRoom(
-) {
     @Id
-    var id: String? = null
+    var id: String? = null,
     // 강사 seq
-    var teacherSeq: String? = null
+    var teacherSeq: String? = null,
     // 강사 닉네임
-    var teacherName: String? = null
+    var teacherName: String? = null,
     // 교실 상태
     @JsonProperty("roomState")
-    var roomState: ClassState? = ClassState.WAIT
+    var roomState: ClassState? = ClassState.WAIT,
     // 교실 제목
-    var title: String? = null
+    var title: String? = null,
     // 교실 참여자
     @JsonIgnore
-    var users: MutableMap<String, User>? = HashMap()
-    // 학습 데이터
-    var studyDataMap: MutableMap<Int, StudyData>? = HashMap()
+    var users: MutableMap<String, User>? = HashMap(),
     // 공유 index
-    var shareIndex: Int? = 0
+    var shareIndex: Int? = null,
     // 학습 모드
-    var studyMode: String? = null
+    var studyMode: String? = null,
     // 동기화 여부
-    var isSync: Boolean? = false
+    var isSync: Boolean? = null,
     // 시작 시간
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    var startDate: LocalDateTime? = null
+    val startDate: LocalDateTime? = null,
     // 종료 시간
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private var endDate: LocalDateTime? = null
+    private var endDate: LocalDateTime? = null,
+) {
+
     @get:JsonIgnore
     val teacher: User?
         get() = users?.get(teacherSeq)
@@ -90,13 +89,13 @@ class ClassRoom(
         return this
     }
 
+    /**
+     * 유저 리스트 조회
+     *
+     * @return 유저 리스트
+     */
     @get:JsonIgnore
     val userList: List<User>
-        /**
-         * 유저 리스트 조회
-         *
-         * @return 유저 리스트
-         */
         get() = ArrayList(users?.values)
 
     /**
@@ -106,17 +105,5 @@ class ClassRoom(
      */
     fun removeUser(memberSeq: String) {
         users?.remove(memberSeq)
-    }
-
-    /**
-     * StudyData 추가
-     *
-     * @param studyData 추가
-     */
-    fun setStudyDataMap(tabIndex: Int?, studyData: StudyData): ClassRoom {
-        if (tabIndex != null) {
-            studyDataMap!![tabIndex] = studyData
-        }
-        return this
     }
 }

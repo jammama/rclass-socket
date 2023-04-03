@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
-import java.time.LocalDateTime
 
 @Component
 class ClassRoomInfoHandler(
@@ -24,11 +23,12 @@ class ClassRoomInfoHandler(
         logInfo("createClassRoom")
         val userSeq = request.pathVariable("userSeq")
         val userName = request.queryParam("userName").orElse("강사")
-        val newClassRoom = ClassRoom()
-        newClassRoom.teacherSeq = userSeq
-        newClassRoom.teacherName = userName
-        newClassRoom.roomState = ClassState.WAIT
-        newClassRoom.startDate = LocalDateTime.now()
+        val newClassRoom = ClassRoom(
+            teacherSeq = userSeq,
+            teacherName = userName,
+            roomState = ClassState.WAIT
+        )
+
 
         return classRoomRepository.save(newClassRoom).flatMap { r -> ServerResult.success().data(r).build() }
     }

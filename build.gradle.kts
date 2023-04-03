@@ -30,6 +30,8 @@ dependencies {
     // springdoc: openApi
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.4")
     implementation("org.springdoc:springdoc-openapi-starter-common")
+
+    // jackson for kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     // kafka
@@ -40,7 +42,7 @@ dependencies {
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
     implementation("org.apache.pdfbox:pdfbox:2.0.16")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 }
