@@ -1,6 +1,5 @@
 package com.learnershi.rclasssocket.entity.common
 
-import lombok.extern.slf4j.Slf4j
 import org.reactivestreams.Publisher
 import org.slf4j.MarkerFactory
 import org.springframework.http.MediaType
@@ -20,8 +19,7 @@ import javax.lang.model.type.TypeVariable
  *
  * @author dualcat
  */
-@Slf4j
-class Result : LinkedHashMap<String?, Any>() {
+class ServerResult : LinkedHashMap<String?, Any>() {
     var RESULT_MARKER = MarkerFactory.getMarker("[RESULT]")
     private var count: Long? = null
     private var data: Any? = null
@@ -66,23 +64,23 @@ class Result : LinkedHashMap<String?, Any>() {
 
     }
 
-    fun count(count: Long?): Result {
+    fun count(count: Long?): ServerResult {
         this.count = count
         return this
     }
 
-    fun data(data: Any?): Result {
+    fun data(data: Any?): ServerResult {
         this.data = data
         return this
     }
 
-    fun producer(publisher: Publisher<*>?, clazz: Class<TypeVariable>?): Result {
+    fun producer(publisher: Publisher<*>?, clazz: Class<TypeVariable>?): ServerResult {
         this.publisher = publisher
         publisherClass = clazz
         return this
     }
 
-    fun message(message: String?): Result {
+    fun message(message: String?): ServerResult {
         this.message = message
         return this
     }
@@ -100,11 +98,11 @@ class Result : LinkedHashMap<String?, Any>() {
         private const val KEY_DATA = "data"
         private const val KEY_TIMESTAMP = "timestamp"
         private val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-        fun success(): Result {
+        fun success(): ServerResult {
             return buildResult(RESULT_SUCCESS)
         }
 
-        fun fail(): Result {
+        fun fail(): ServerResult {
             return buildResult(RESULT_FAIL)
         }
 
@@ -114,15 +112,15 @@ class Result : LinkedHashMap<String?, Any>() {
          * @param result 결과코드
          * @return Result
          */
-        private fun buildResult(result: Int): Result {
-            val returnResult = Result()
-            returnResult[KEY_STATUS_CODE] = result
+        private fun buildResult(result: Int): ServerResult {
+            val returnServerResult = ServerResult()
+            returnServerResult[KEY_STATUS_CODE] = result
             if (RESULT_SUCCESS == result) {
-                returnResult[KEY_STATUS_MESSAGE] = "Success"
+                returnServerResult[KEY_STATUS_MESSAGE] = "Success"
             } else if (RESULT_FAIL == result) {
-                returnResult[KEY_STATUS_MESSAGE] = "Fail"
+                returnServerResult[KEY_STATUS_MESSAGE] = "Fail"
             }
-            return returnResult
+            return returnServerResult
         }
 
         private val currentTime: String

@@ -1,38 +1,46 @@
 package com.learnershi.rclasssocket.entity
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.learnershi.rclasssocket.entity.enums.*
-import lombok.*
+import org.springframework.data.annotation.Id
+import java.time.LocalDateTime
 
 /**
  * ClassRoom
  *
  */
 class ClassRoom(
-    val id: String,
+) {
+    @Id
+    var id: String? = null
     // 강사 seq
-    val teacherSeq: String,
+    var teacherSeq: String? = null
     // 강사 닉네임
-    val teacherName: String,
+    var teacherName: String? = null
     // 교실 상태
     @JsonProperty("roomState")
-    val roomState: ClassState,
+    var roomState: ClassState? = ClassState.WAIT
     // 교실 제목
-    val title: String,
+    var title: String? = null
     // 교실 참여자
     @JsonIgnore
-    val users: MutableMap<String, User>? = HashMap(),
+    var users: MutableMap<String, User>? = HashMap()
     // 학습 데이터
-    val studyDataMap: MutableMap<Int, StudyData>,
+    var studyDataMap: MutableMap<Int, StudyData>? = HashMap()
     // 공유 index
-    val shareIndex: Int,
+    var shareIndex: Int? = 0
     // 학습 모드
-    val studyMode: String,
+    var studyMode: String? = null
     // 동기화 여부
-    val isSync: Boolean,
-) {
-
+    var isSync: Boolean? = false
+    // 시작 시간
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    var startDate: LocalDateTime? = null
+    // 종료 시간
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private var endDate: LocalDateTime? = null
     @get:JsonIgnore
     val teacher: User?
         get() = users?.get(teacherSeq)
@@ -44,10 +52,10 @@ class ClassRoom(
         return userSeq == teacherSeq
     }
 
+    /**
+     * 학생 리스트
+     */
     val students: List<User>
-        /**
-         * 학생 리스트
-         */
         get() = users?.values?.filter { user: User -> user.seq != teacherSeq } ?: emptyList()
 
     /**
@@ -107,7 +115,7 @@ class ClassRoom(
      */
     fun setStudyDataMap(tabIndex: Int?, studyData: StudyData): ClassRoom {
         if (tabIndex != null) {
-            studyDataMap[tabIndex] = studyData
+            studyDataMap!![tabIndex] = studyData
         }
         return this
     }

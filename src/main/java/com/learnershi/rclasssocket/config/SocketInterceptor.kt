@@ -52,7 +52,7 @@ class SocketInterceptor(
             Envelop(
                 msgType = MessageType.CONNECT,
                 data = newUser,
-                userType = UserType.A,
+                userType = UserType.ALL,
                 classRoomId = classRoomId
             )
         )
@@ -73,7 +73,7 @@ class SocketInterceptor(
             Envelop(
                 msgType = MessageType.DISCONNECT,
                 data = removeUser ?: User(userSeq, ""),
-                userType = UserType.A,
+                userType = UserType.ALL,
                 classRoomId = classRoomId
             )
         )

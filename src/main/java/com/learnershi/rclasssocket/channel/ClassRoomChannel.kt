@@ -1,12 +1,12 @@
 package com.learnershi.rclasssocket.channel
 
-import com.learnershi.rclasssocket.Log.Log
 import com.learnershi.rclasssocket.entity.ClassRoom
 import com.learnershi.rclasssocket.entity.User
 import com.learnershi.rclasssocket.entity.common.Envelop
 import com.learnershi.rclasssocket.entity.enums.UserType
 import com.learnershi.rclasssocket.repository.ClassRoomRepository
 import com.learnershi.rclasssocket.repository.ClassRoomUserRepository
+import org.slf4j.LoggerFactory
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -23,10 +23,7 @@ class ClassRoomChannel(
 ) {
 
 
-    // 소켓 publish 주소
-    private val DESTINATION = "/msg"
-
-    private val log = Log.logger(this)
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     /**
      * userSeq에 해당하는 사용자에게 envelop을 전송한다.
@@ -67,10 +64,15 @@ class ClassRoomChannel(
             .map { classRoom: ClassRoom? ->
                 val users = classroomUserRepository.findByClassRoomId(classRoomId).filterNotNull()
                 when (type) {
-                    UserType.T -> users.filter { user: User -> classRoom!!.isTeacher(user.seq) }
-                    UserType.S -> users.filter { user: User -> !classRoom!!.isTeacher(user.seq) }
+                    UserType.TEACHER -> users.filter { user: User -> classRoom!!.isTeacher(user.seq) }
+                    UserType.STUDENT -> users.filter { user: User -> !classRoom!!.isTeacher(user.seq) }
                     else -> users
                 }
             }
+    }
+
+    companion object {
+        // 소켓 publish 주소
+        const val DESTINATION = "/msg"
     }
 }

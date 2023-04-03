@@ -1,8 +1,8 @@
 package com.learnershi.rclasssocket.controller
 
-import com.learnershi.rclasssocket.Log.Log
 import com.learnershi.rclasssocket.channel.ClassRoomChannel
 import com.learnershi.rclasssocket.entity.common.Envelop
+import com.learnershi.rclasssocket.log.Log
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 class MessageListener(
     private val classRoomChannel: ClassRoomChannel
 ) {
-    private val log = Log.logger(this)
+    private val log = Log.of(this.javaClass)
 
     /**
      * Kafka로부터 메세지를 받아

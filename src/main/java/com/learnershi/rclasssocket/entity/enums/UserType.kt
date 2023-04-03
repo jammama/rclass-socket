@@ -5,7 +5,7 @@ package com.learnershi.rclasssocket.entity.enums
  *
  */
 enum class UserType {
-    T,  // 선생님
-    S,  // 학생
-    A // 전체
+    TEACHER,  // 선생님
+    STUDENT,  // 학생
+    ALL // 전체
 }

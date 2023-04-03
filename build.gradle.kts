@@ -18,20 +18,30 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-websocket")
+    // webflux
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    // web socket
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
+
+    // mongo
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+
+    // springdoc: openApi
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.4")
+    implementation("org.springdoc:springdoc-openapi-starter-common")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // kafka
     implementation("org.springframework.kafka:spring-kafka")
 
-    compileOnly("org.projectlombok:lombok")
+    // actuator
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.projectreactor:reactor-test")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.apache.pdfbox:pdfbox:2.0.16")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 }
 

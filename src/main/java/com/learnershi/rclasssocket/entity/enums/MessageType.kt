@@ -1,12 +1,10 @@
 package com.learnershi.rclasssocket.entity.enums
 
-import lombok.extern.slf4j.Slf4j
 
 /**
  * MessageType Enum
  *
  */
-@Slf4j
 enum class MessageType {
     // test
     GREET,  // 연결 확인

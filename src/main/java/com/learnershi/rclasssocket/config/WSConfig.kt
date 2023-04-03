@@ -13,14 +13,14 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-open class WSConfig(
+class WSConfig(
     private val classRoomUserRepository: ClassRoomUserRepository,
     private val kafkaTemplate: KafkaTemplate<String, Envelop>,
     private val sessionUserRepository: SessionUserRepository
 ) : WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(config: MessageBrokerRegistry) {
-        config.enableSimpleBroker("/")
+        config.enableSimpleBroker("/topic")
         config.setApplicationDestinationPrefixes("/app")
     }
 
@@ -38,4 +38,13 @@ open class WSConfig(
             )
         )
     }
+
+//    @Bean
+//    fun subRouter(classRoomInfoHandler: ClassRoomInfoHandler) = router {
+//        accept(MediaType.APPLICATION_JSON).nest {
+//            (GET("/api/user/") or GET("/api/users/")).invoke(classRoomInfoHandler::createClassRoom)
+//            POST("/api/users/", classRoomInfoHandler::createClassRoom)
+//        }
+//        GET("/ahh") { ServerResponse.ok().bodyValue("되겠냐....") }
+//    }
 }

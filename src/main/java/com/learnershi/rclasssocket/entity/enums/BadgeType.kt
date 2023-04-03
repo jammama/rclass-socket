@@ -1,9 +1,7 @@
 package com.learnershi.rclasssocket.entity.enums
 
-import lombok.Getter
 import java.util.*
 
-@Getter
 enum class BadgeType(val value: String) {
     KNOWLEDGE("knowledge"), SPEED("speed"), COMMUNICATION("communication"), FOCUS("focus"), CHALLENGE("challenge"), HONER(
         "honer"
