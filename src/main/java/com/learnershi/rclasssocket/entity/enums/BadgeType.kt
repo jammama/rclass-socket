@@ -3,11 +3,19 @@ package com.learnershi.rclasssocket.entity.enums
 import java.util.*
 
 enum class BadgeType(val value: String) {
-    KNOWLEDGE("knowledge"), SPEED("speed"), COMMUNICATION("communication"), FOCUS("focus"), CHALLENGE("challenge"), HONER(
-        "honer"
-    ),
-    SKILL("skill"), EXPERIENCE("experience"), ANALYZE("analyze"), NONE("none");
-
+    KNOWLEDGE("knowledge"),
+    SPEED("speed"),
+    COMMUNICATION("communication"),
+    FOCUS("focus"),
+    CHALLENGE("challenge"),
+    HONER("honer"),
+    SKILL("skill"),
+    EXPERIENCE("experience"),
+    ANALYZE("analyze"),
+    NONE("none");
+    fun getValue(): String {
+        return this.getValue()
+    }
     companion object {
         fun findByValue(value: String): BadgeType {
             return Arrays.stream(values())
@@ -15,5 +23,7 @@ enum class BadgeType(val value: String) {
                 .findAny()
                 .orElse(NONE)
         }
+
+
     }
 }

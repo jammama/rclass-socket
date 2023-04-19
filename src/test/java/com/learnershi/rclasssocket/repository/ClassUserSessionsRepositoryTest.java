@@ -15,35 +15,35 @@ import java.util.Collection;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("local")
 @SpringBootTest
-class ClassRoomUserRepositoryTest {
+class ClassUserSessionsRepositoryTest {
 
     @Autowired
-    private ClassRoomUserRepository classroomUserRepository;
+    private ClassUserSessionsRepository classroomUsersSession;
 
     private final String testClassRoomId = "repositoryTestClassRoomId";
     private final String testUserSeq = "testUserSeq";
 
     @AfterEach
     void tearDownAll() {
-        classroomUserRepository.removeUser(testClassRoomId, testUserSeq);
+        classroomUsersSession.removeUser(testClassRoomId, testUserSeq);
     }
 
     @Test
     @DisplayName("add/delete user test")
     void removeUser() {
-        classroomUserRepository.addUser(testClassRoomId, new User(testUserSeq));
-        assert classroomUserRepository.findUserByClassRoomIdAndUserSeq(testClassRoomId, testUserSeq) != null;
+        classroomUsersSession.addUserSession(testClassRoomId, new UserSession(new User(testUserSeq), null));
+        assert classroomUsersSession.findUserByClassRoomIdAndUserSeq(testClassRoomId, testUserSeq) != null;
 
-        classroomUserRepository.removeUser(testClassRoomId, testUserSeq);
-        assert classroomUserRepository.findUserByClassRoomIdAndUserSeq(testClassRoomId, testUserSeq) == null;
+        classroomUsersSession.removeUser(testClassRoomId, testUserSeq);
+        assert classroomUsersSession.findUserByClassRoomIdAndUserSeq(testClassRoomId, testUserSeq) == null;
     }
 
     @Test
     @DisplayName("classRoom내 userList 조회 test")
     void findByClassRoomId() {
         User user = new User(testUserSeq);
-        classroomUserRepository.addUser(testClassRoomId, user);
-        Collection<User> classRoomUserList = classroomUserRepository.findByClassRoomId(testClassRoomId);
+        classroomUsersSession.addUserSession(testClassRoomId,  new UserSession(new User(testUserSeq), null));
+        Collection<UserSession> classRoomUserList = classroomUsersSession.findByClassRoomId(testClassRoomId);
         assert classRoomUserList.contains(user);
     }
 
@@ -51,8 +51,8 @@ class ClassRoomUserRepositoryTest {
     @DisplayName("classRoom내 user 조회 test")
     void findUserByClassRoomIdAndUserSeq() {
         User user = new User(testUserSeq);
-        classroomUserRepository.addUser(testClassRoomId, user);
-        User findUser = classroomUserRepository.findUserByClassRoomIdAndUserSeq(testClassRoomId, testUserSeq);
+        classroomUsersSession.addUserSession(testClassRoomId, new UserSession(new User(testUserSeq), null));
+        UserSession findUser = classroomUsersSession.findUserByClassRoomIdAndUserSeq(testClassRoomId, testUserSeq);
         assert findUser.equals(user);
     }
 }

@@ -28,14 +28,14 @@ spring:
             key-serializer: org.apache.kafka.common.serialization.StringSerializer
             value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+    rsocket:
+        server:
+            mapping-path: "/rsocket"
+            transport: "websocket"
 #Swagger
 springdoc:
     swagger-ui:
         path: swagger.html
 
-#actuator
-management:
-    endpoints:
-        web:
-            exposure:
-                include: "*"
+
+

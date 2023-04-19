@@ -10,6 +10,6 @@ data class Envelop(
     val msgType: MessageType,
     val classRoomId: String,
     val userType: UserType,
-    val data: Any
+    val data: Any?
 ) {
 }

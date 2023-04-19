@@ -10,54 +10,42 @@ enum class MessageType {
     GREET,  // 연결 확인
 
     // ClassRoom
-    CONNECT,  // 선생님 연결   -TODO User:(변경된 user)
-    DISCONNECT,  // 선생님 끊김   -TODO User:(변경된 user)
-    STUDENT_CONNECT,  // 학생 연결    -TODO User:(변경된 user)
-    STUDENT_DISCONNECT,  // 학생 끊김    -TODO User:(변경된 user)
-    DUPLICATE,  // 중복 연결    -TODO User:(변경된 user)
-    REJECT,  // 강퇴        -TODO User:(변경된 user)
-
-    // SSE
-    // Class Room
-    PATCH_ROOM,  // Class Room 상태변경 -ClassRoom:classroom TODO: studyData와 classRoom 분리후 해당 메세지 재확인
-    USER_UID,  // 사용자 Cam Uid 설정 -(미사용)
-    STUDY_MODE,  // 수업 모드 (손들기, 종? 등) -String:studyMode TODO: 왜 string으로 받는지 확인필요
-    STUDY_ACTION,  // 수업 모드 (손들기, 종? 등) -User:요청 user
-
-    // Class Room
-    // Quiz
-    QUIZ_START,  // 퀴즈 시작
-    QUIZ_SUBMIT,  // 퀴즈 보내기
-    SPEED_QUIZ_START,  // 스피드 퀴즈 시작
-    SPEED_QUIZ_SUBMIT,  // 스피드 퀴즈 제출
-
-    // Quiz
-    // WhiteBoard
-    DRAW_PATH,  // 선생님이 그린 드로잉 PATH
-    DRAW_PATH_LIST,  // 선생님이 그린 드로잉 PATH LIST -(api분리로 미사용)
-
-    // WhiteBoard
-    // Sync
-    SYNC,  // 교재 동기화
-    UN_SYNC,  // 교재 동기화 해제
-    SYNC_CLASSROOM,  // 학습 동기화
-    SYNC_PAGE,  // 페이지 동기화
-
-    // Sync
-    // Share
-    SHARE_QUIZ_RESULT,  // 퀴즈결과 보기
-    SHARE_QUIZ_ANSWER,  // 주관식 같이보기
-
-    // Share
-    SHARE_HANDS_UP,  // 손들기 같이 보기
-    SHARE_RANDOM_PICK,  // 랜덤 같이 보기
-
-    //    REMOVE_STUDY,
-    MINI_WINDOW,  // 미니창
-    SYNC_MINI_WINDOW,  // 현재 미니창
-    CLOSE_MINI_WINDOW,  // 미니창 닫기
-    SHARE_VIRTUAL_TOOLS,  // VIRTUAL TOOLS 함께보기
-    SHARE_VIRTUAL_TOOL_ANIMATIONS,  // VIRTUAL TOOLS animations
-    SPOTLIGHT,  // 스포트라이트
-    END, START, CLOSE_SPOTLIGHT // 스포트라이트 닫기
+    CONNECT,
+    PATCH_ROOM,
+    STUDENT_CONNECT,
+    STUDENT_DISCONNECT,
+    DISCONNECT,
+    QUIZ_START,
+    QUIZ_SUBMIT,
+    STUDY_MODE,
+    STUDY_ACTION,
+    SHARE_QUIZ_RESULT,
+    SHARE_QUIZ_ANSWER,
+    SHARE_HANDS_UP,
+    SHARE_RANDOM_PICK,
+    MINI_WINDOW,
+    SYNC_MINI_WINDOW,
+    CLOSE_MINI_WINDOW,
+    SYNC_CLASSROOM,
+    SYNC,
+    SPEED_QUIZ_START,
+    SPEED_QUIZ_SUBMIT,
+    DRAW_PATH,
+    SHARE_VIRTUAL_TOOLS,
+    SHARE_VIRTUAL_TOOL_ANIMATIONS,
+    SPOTLIGHT,
+    CLOSE_SPOTLIGHT,
+    CREATE_CLASS_GOAL,
+    UPDATE_CLASS_GOAL,
+    DELETE_CLASS_GOAL,
+    POST_IT,
+    POST_IT_DELETED,
+    REVEAL,
+    REVEAL_DELETED,
+    COMPREHENSION_QUESTION,
+    COMPREHENSION_ANSWER,
+    MEDIA,
+    READ,
+    BADGE,
+    ERROR
 }

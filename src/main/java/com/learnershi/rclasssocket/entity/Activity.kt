@@ -12,12 +12,14 @@ import java.time.LocalDateTime
 @Document
 data class Activity(
     @Id var id: String? = null,
-    private val miniWindowType: MiniWindowType,
-    val classRoomId: String,
-    val entity: Any? = null,
+    var miniWindowType: MiniWindowType,
+    var classRoomId: String,
+    var entity: Any? = null,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "ko_KR", timezone = "Asia/Seoul")
-    val endTime: LocalDateTime = LocalDateTime.now()
+    var endTime: LocalDateTime = LocalDateTime.now()
 ) {
+    constructor() : this(null, MiniWindowType.NONE, "", null, LocalDateTime.now())
+
     fun getMiniWindowType(): String {
         return miniWindowType.value
     }
