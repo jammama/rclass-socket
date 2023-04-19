@@ -27,7 +27,10 @@ data class ClassRoom(
     @JsonIgnore
     var users: MutableMap<String, User>? = HashMap(),
     // 공유 index
-    var shareIndex: Int? = null,
+    var shareTabIndex: Int = 0,
+
+    var sharePageIndex: Int = 0,
+
     // 학습 모드
     var studyMode: String? = null,
     // 동기화 여부
@@ -38,72 +41,13 @@ data class ClassRoom(
     // 종료 시간
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     var endDate: LocalDateTime? = null,
-) {
-
-    @get:JsonIgnore
-    val teacher: User?
-        get() = users?.get(teacherSeq)
-
-    /**
-     * 강사 여부
-     */
-    fun isTeacher(userSeq: String): Boolean {
-        return userSeq == teacherSeq
-    }
-
-    /**
-     * 학생 리스트
-     */
-    val students: List<User>
-        get() = users?.values?.filter { user: User -> user.seq != teacherSeq } ?: emptyList()
-
-    /**
-     * 나를 제외한 유저 정보
-     *
-     * @param userSeq 유저 순번
-     * @return User 정보
-     */
-    fun getOthers(userSeq: String): List<User> {
-        return users?.values?.filter { user: User -> user.seq != userSeq } ?: emptyList()
-    }
-
-    /**
-     * 해당 유저 정보
-     *
-     * @param seq 유저 seq
-     * @return User 유저정보
-     */
-    @JsonIgnore
-    fun getUser(seq: String): User? {
-        return users?.get(seq)
-    }
-
-    /**
-     * 유저 추가
-     *
-     * @param user 추가유저
-     * @return ClassRoom 해당 교실
-     */
-    fun addUser(user: User): ClassRoom {
-        users?.put(user.seq, user)
+){
+    fun modify(classRoom: ClassRoom): ClassRoom {
+        roomState = classRoom.roomState
+        this.shareTabIndex = classRoom.shareTabIndex
+        this.sharePageIndex = classRoom.sharePageIndex
+        title = classRoom.title
+        this.isSync = classRoom.isSync
         return this
-    }
-
-    /**
-     * 유저 리스트 조회
-     *
-     * @return 유저 리스트
-     */
-    @get:JsonIgnore
-    val userList: List<User>
-        get() = ArrayList(users?.values)
-
-    /**
-     * 유저 삭제
-     *
-     * @param memberSeq 식별키
-     */
-    fun removeUser(memberSeq: String) {
-        users?.remove(memberSeq)
     }
 }

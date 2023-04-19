@@ -26,7 +26,7 @@ class ComprehensionAnswer : ComprehensionQuestion {
         answerType: AnswerType?,
         answer: String
     ) : super(question, step, answerType) {
-        setId(id!!)
+        this.id = id!!
         this.userSeq = userSeq
         this.classRoomId = classRoomId
         this.answer = answer
@@ -40,7 +40,7 @@ class ComprehensionAnswer : ComprehensionQuestion {
         answerType: AnswerType?,
         answer: String
     ) : super(question, step, answerType) {
-        setId(id!!)
+        this.id = id!!
         this.userSeq = userSeq
         this.answer = answer
     }

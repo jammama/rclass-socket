@@ -26,7 +26,6 @@ class SocketService(
     fun connect(classRoomId: String, user: User, requester: RSocketRequester): Mono<Envelop?> {
         classUserSessionsRepository.findUserByClassRoomIdAndUserSeq(classRoomId, user.seq)?.let {
             classUserSessionsRepository.removeUser(classRoomId, user.seq)
-            // TODO: 기존 세션에
             return Mono.error {RuntimeException()}
         }
         return classRoomRepository.findById(classRoomId)

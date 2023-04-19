@@ -2,11 +2,13 @@ package com.learnershi.rclasssocket.controller
 
 import com.learnershi.rclasssocket.entity.common.Envelop
 import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.stereotype.Service
 
 /**
  * 메시지를 보내는 기본 컨트롤러
  */
-abstract class DefaultSocketController(private val kafkaTemplate: KafkaTemplate<String?, Envelop?>) {
+@Service
+class EnvelopSendService(private val kafkaTemplate: KafkaTemplate<String?, Envelop?>) {
     private val USER_TOPIC: String = MessageListener.TOPIC
 
     /**

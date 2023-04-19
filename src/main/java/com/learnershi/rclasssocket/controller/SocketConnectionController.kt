@@ -5,7 +5,6 @@ import com.learnershi.rclasssocket.entity.common.Envelop
 import com.learnershi.rclasssocket.log.Log
 import com.learnershi.rclasssocket.repository.ClassUserSessionsRepository
 import com.learnershi.rclasssocket.service.SocketService
-import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
@@ -17,10 +16,10 @@ import reactor.core.publisher.Mono
 
 @Controller
 class SocketConnectionController(
-    kafkaTemplate: KafkaTemplate<String?, Envelop?>,
     private val classUserSessionsRepository: ClassUserSessionsRepository,
-    private val socketService: SocketService
-) : DefaultSocketController(kafkaTemplate) {
+    private val socketService: SocketService,
+    private val envelopSendService: EnvelopSendService
+) {
 
     val log = Log.of(this.javaClass)
 
@@ -84,7 +83,7 @@ class SocketConnectionController(
         @Payload user: User
     ): Mono<Envelop?> {
         return socketService.connect(classRoomId, user, requester).doOnSuccess {
-            sendMessageQueue(it)
+            envelopSendService.sendMessageQueue(it)
         }
     }
 
@@ -96,7 +95,7 @@ class SocketConnectionController(
      */
     @MessageMapping("/test/{classRoomId}")
     fun sendMessage(envelop: Envelop) {
-        sendMessageQueue(envelop)
+        envelopSendService.sendMessageQueue(envelop)
     }
 
     /**
@@ -106,6 +105,6 @@ class SocketConnectionController(
     @MessageMapping("share/studyAction")
     fun shareStudyAction(envelop: Envelop) {
         log.info("Share action: {}", envelop)
-        sendMessageQueue(envelop)
+        envelopSendService.sendMessageQueue(envelop)
     }
 }

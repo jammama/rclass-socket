@@ -1,11 +1,15 @@
 package com.learnershi.rclasssocket.service
 
+import com.learnershi.rclasssocket.controller.EnvelopSendService
 import com.learnershi.rclasssocket.entity.Activity
 import com.learnershi.rclasssocket.entity.ClassRoom
 import com.learnershi.rclasssocket.entity.Reveal
+import com.learnershi.rclasssocket.entity.common.Envelop
 import com.learnershi.rclasssocket.entity.common.ServerResult
 import com.learnershi.rclasssocket.entity.enums.ClassState
+import com.learnershi.rclasssocket.entity.enums.MessageType
 import com.learnershi.rclasssocket.entity.enums.MiniWindowType
+import com.learnershi.rclasssocket.entity.enums.UserType
 import com.learnershi.rclasssocket.log.Log
 import com.learnershi.rclasssocket.repository.*
 import org.springframework.data.domain.PageImpl
@@ -13,7 +17,9 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.bodyToMono
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 import java.util.stream.Collectors
@@ -30,7 +36,8 @@ class ClassRoomService(
     private val postItRepository: PostItRepository,
     private val badgeRepository: BadgeRepository,
     private val comprehensionAnswerRepository: ComprehensionAnswerRepository,
-    private val classUserSessionsRepository: ClassUserSessionsRepository
+    private val classUserSessionsRepository: ClassUserSessionsRepository,
+    private val envelopSendService: EnvelopSendService
 ) {
     private val log = Log.of(this.javaClass)
 
@@ -40,7 +47,9 @@ class ClassRoomService(
      * @param userSeq 사용자 시퀀스
      * @return Mono<ServerResponse> 응답
      */
-    fun createClassRoom(userSeq: String, userName: String): Mono<ServerResponse> {
+    fun createClassRoom(request: ServerRequest): Mono<ServerResponse> {
+        val userSeq = request.pathVariable("userSeq")
+        val userName = request.queryParam("userName").orElse("익명의 강사")
         log.info("create class - {} {}", userSeq, userName)
         val newClassRoom = ClassRoom(
             teacherSeq = userSeq,
@@ -57,9 +66,41 @@ class ClassRoomService(
      * @param classRoomId 클래스룸 아이디
      * @return Mono<ServerResponse> 응답
      */
-    fun getClassRoom(classRoomId: String): Mono<ServerResponse> {
+    fun getClassRoom(request: ServerRequest): Mono<ServerResponse> {
+        val classRoomId = request.pathVariable("classRoomId")
         log.info("get class - {}", classRoomId)
         return classRoomRepository.findById(classRoomId).flatMap { r -> ServerResult.success().data(r).build() }
+    }
+
+
+    /**
+     * ClassRoom을 수정한다.
+     *
+     * @param classRoomId 클래스룸 아이디
+     * @param patchRoom 수정할 클래스룸
+     * @return Mono<ServerResponse> 응답
+     */
+    fun updateClassRoom(request: ServerRequest): Mono<ServerResponse> {
+        val classRoomId = request.pathVariable("classRoomId")
+        val patchRoom = request.bodyToMono<ClassRoom>()
+        return classRoomRepository.findById(classRoomId)
+            .defaultIfEmpty(ClassRoom())
+            .flatMap { classRoom ->
+                patchRoom.flatMap {
+                    classRoomRepository.save( classRoom!!.modify(it) )
+                        .doOnSuccess {
+                        r -> envelopSendService.sendMessageQueue(
+                        Envelop(
+                            msgType = MessageType.PATCH_ROOM,
+                            classRoomId = classRoomId,
+                            data = r,
+                            userType = UserType.ALL
+                        ))
+                    }.flatMap { r ->
+                        ServerResult.success().data(r).build()
+                    }
+                }
+            }
     }
 
     /**
@@ -68,7 +109,8 @@ class ClassRoomService(
      * @param classRoomId 클래스룸 아이디
      * @return Mono<ServerResponse> 결과
     </ServerResponse> */
-    fun sendCanvasDrawPathList(classRoomId: String): Mono<ServerResponse> {
+    fun sendCanvasDrawPathList(request: ServerRequest): Mono<ServerResponse> {
+        val classRoomId = request.pathVariable("classRoomId")
         return canvasDrawRepository.findAllByClassRoomId(classRoomId)
             .collectList().flatMap { r -> ServerResult.success().data(r).build() }
     }

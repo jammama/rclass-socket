@@ -13,9 +13,7 @@ enum class BadgeType(val value: String) {
     EXPERIENCE("experience"),
     ANALYZE("analyze"),
     NONE("none");
-    fun getValue(): String {
-        return this.getValue()
-    }
+
     companion object {
         fun findByValue(value: String): BadgeType {
             return Arrays.stream(values())
@@ -23,7 +21,5 @@ enum class BadgeType(val value: String) {
                 .findAny()
                 .orElse(NONE)
         }
-
-
     }
 }

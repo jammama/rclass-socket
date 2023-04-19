@@ -63,8 +63,8 @@ class ClassRoomChannel(
             .mapNotNull { classRoom: ClassRoom? ->
                 val users = classroomUsersSession.findByClassRoomId(classRoomId)
                 when (type) {
-                    UserType.TEACHER -> users.filter { userSession: UserSession -> classRoom!!.isTeacher(userSession.user.seq) }
-                    UserType.STUDENT -> users.filter { userSession: UserSession -> !classRoom!!.isTeacher(userSession.user.seq) }
+                    UserType.TEACHER -> users.filter { userSession: UserSession -> classRoom!!.teacherSeq.equals(userSession.user.seq) }
+                    UserType.STUDENT -> users.filter { userSession: UserSession -> !classRoom!!.teacherSeq.equals(userSession.user.seq) }
                     else -> users
                 }
             }

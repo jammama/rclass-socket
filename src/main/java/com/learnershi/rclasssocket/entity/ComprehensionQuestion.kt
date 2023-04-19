@@ -11,16 +11,12 @@ open class ComprehensionQuestion(// 설문 내용
     private val step: String?, answerType: AnswerType?
 ) {
     // 설문 id (설문별 랜덤 uuid 생성)
-    public var id: String
+    public var id: String = UUID.randomUUID().toString()
 
     // 답안 타입
     private val answerType: AnswerType?
-    protected fun setId(id: String) {
-        this.id = id
-    }
 
     init {
-        id = UUID.randomUUID().toString()
         this.answerType = answerType
     }
 }

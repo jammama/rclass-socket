@@ -19,7 +19,7 @@ class Badge {
     // 뱃지 타입
     private val badgeType: BadgeType = BadgeType.NONE
     fun getBadgeType(): String {
-        return badgeType.getValue()
+        return badgeType.value
     }
 
     fun setClassRoomId(classRoomId: String?): Badge {
