@@ -11,7 +11,6 @@ import com.learnershi.rclasssocket.repository.UserSession
 import org.springframework.messaging.rsocket.RSocketRequester
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.switchIfEmpty
 
 @Service
 class SocketService(
@@ -19,35 +18,37 @@ class SocketService(
     private val classUserSessionsRepository: ClassUserSessionsRepository
 ) {
     private val log = Log.of(this.javaClass)
+
     /**
-     *  classRoom - User 세션에 사용자를 저장하고 classRoom 정보를 리턴한다.
-     *  해당 classRoom이 없을 경우, 세션이 이미 있는 경우 에러
+     *  classRoom - User 세션에 사용자를 저장하고 user 정보가 담긴 Envelop을 리턴한다.
+     *  세션이 이미 있는 경우 에러
+     *  @param classRoomId - classRoomId
+     *  @param user - User
+     *  @param requester - RSocketRequester
+     *  @return Mono<Envelop> - CONNECT, ALL : {connect 된 user 정보}
      */
-    fun connect(classRoomId: String, user: User, requester: RSocketRequester): Mono<Envelop?> {
+    fun connect(classRoomId: String, user: User, requester: RSocketRequester): Mono<Envelop> {
+        // session error 처리
         classUserSessionsRepository.findUserByClassRoomIdAndUserSeq(classRoomId, user.seq)?.let {
             classUserSessionsRepository.removeUser(classRoomId, user.seq)
-            return Mono.error {RuntimeException()}
+            throw RuntimeException("이미 접속중인 사용자입니다.")
         }
-        return classRoomRepository.findById(classRoomId)
-            // TODO: Exception 별도 처리
-            .switchIfEmpty { Mono.error { RuntimeException() } }
-            .doOnSuccess {
-                requester.rsocket()!!
-                    .onClose()
-                    .doFirst {
-                        classUserSessionsRepository.addUserSession(classRoomId, UserSession(user, requester))
-                        log.info("---user On {} {}", classRoomId, user.seq)
-                    }.doFinally {
-                        classUserSessionsRepository.removeUser(classRoomId, user.seq)
-                        log.info("---user Off {} {}", classRoomId, user.seq)
-                    }.subscribe()
-            }.map {
+        return requester.rsocket()!!
+            .onClose()
+            .doFirst {
+                classUserSessionsRepository.addUserSession(classRoomId, UserSession(user, requester))
+                log.info("---user On {} {}", classRoomId, user.seq)
+            }.doFinally {
+                classUserSessionsRepository.removeUser(classRoomId, user.seq)
+                log.info("---user Off {} {}", classRoomId, user.seq)
+            }.thenReturn(
                 Envelop(
                     msgType = MessageType.CONNECT,
                     userType = UserType.ALL,
-                    data = it,
+                    data = user, // classRoom
                     classRoomId = classRoomId
                 )
-            }
+            )
     }
+
 }

@@ -1,7 +1,7 @@
-package com.learnershi.rclasssocket.router
+package com.learnershi.rclasssocket.controller
 
 import com.learnershi.rclasssocket.entity.common.ServerResult
-import com.learnershi.rclasssocket.service.ClassRoomService
+import com.learnershi.rclasssocket.handler.DefaultHandler
 import com.learnershi.rclasssocket.service.UserService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.server.router
 
 @Configuration
 class RouterConfig(
-    private val classRoomService: ClassRoomService,
+    private val defaultHandler: DefaultHandler,
     private val userService: UserService
 ) {
 
@@ -23,9 +23,9 @@ class RouterConfig(
             accept(MediaType.APPLICATION_JSON).nest {
 
                 path("/classRoom").nest {
-                    POST("/{userSeq}/create")(classRoomService::createClassRoom)
-                    GET("/{classRoomId}")(classRoomService::getClassRoom)
-                    PATCH("/{classRoomId}")(classRoomService::updateClassRoom)
+                    POST("/{userSeq}/create")(defaultHandler::createClassRoom)
+                    GET("/{classRoomId}") ( defaultHandler::getClassRoom )
+                    PATCH("/{classRoomId}")(defaultHandler::updateClassRoom)
                 }
 
                 // endpoint 만 작성. 추후 auth 서비스로 변경 고려
@@ -33,6 +33,7 @@ class RouterConfig(
                     GET("/{classRoomId}")(userService::getUserClassRoomList)
                     GET("/list/{classRoomId}") { ServerResult.success().build() }
                 }
+
             }
 
             // 추후 cms 서비스로 변경 고려

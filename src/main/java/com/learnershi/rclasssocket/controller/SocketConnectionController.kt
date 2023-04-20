@@ -1,9 +1,13 @@
 package com.learnershi.rclasssocket.controller
 
+import com.learnershi.rclasssocket.entity.CanvasDraw
+import com.learnershi.rclasssocket.entity.ClassRoom
+import com.learnershi.rclasssocket.entity.ClassStudyDataMap
 import com.learnershi.rclasssocket.entity.User
 import com.learnershi.rclasssocket.entity.common.Envelop
 import com.learnershi.rclasssocket.log.Log
 import com.learnershi.rclasssocket.repository.ClassUserSessionsRepository
+import com.learnershi.rclasssocket.service.ClassRoomService
 import com.learnershi.rclasssocket.service.SocketService
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
@@ -17,6 +21,7 @@ import reactor.core.publisher.Mono
 @Controller
 class SocketConnectionController(
     private val classUserSessionsRepository: ClassUserSessionsRepository,
+    private val classRoomService: ClassRoomService,
     private val socketService: SocketService,
     private val envelopSendService: EnvelopSendService
 ) {
@@ -75,18 +80,50 @@ class SocketConnectionController(
 
     /**
      * user connection
+     * connect 된 유저 정보 전파 & 리턴
      */
     @MessageMapping(*["connect/{classRoomId}"])
     fun userConnect(
         requester: RSocketRequester,
         @DestinationVariable classRoomId: String,
         @Payload user: User
-    ): Mono<Envelop?> {
-        return socketService.connect(classRoomId, user, requester).doOnSuccess {
-            envelopSendService.sendMessageQueue(it)
-        }
+    ): Mono<User?> {
+        return classRoomService.getClassRoom(classRoomId).doOnSuccess {
+            socketService.connect(classRoomId, user, requester).doOnSuccess {
+                envelopSendService.sendMessageQueue(it)
+            }.subscribe()
+        }.thenReturn(user)
+    }
+    @MessageMapping("{classRoomId}/classRoom")
+    fun getClassRoomInfo(
+        @DestinationVariable classRoomId: String,
+    ): Mono<ClassRoom?> {
+        log.info("getClassRoomInfo: {}", classRoomId)
+        return classRoomService.getClassRoom(classRoomId)
     }
 
+    @MessageMapping("{classRoomId}/users")
+    fun getClassRoomSessionUsers(
+        @DestinationVariable classRoomId: String,
+    ): Mono<Collection<User>?> {
+        log.info("getClassRoomSessionUsers: {}", classRoomId)
+        return classRoomService.getClassRoomSessionUsers(classRoomId)
+    }
+
+    @MessageMapping("{classRoomId}/studyDataMap")
+    fun getStudyDataMap(
+        @DestinationVariable classRoomId: String,
+    ): Mono<ClassStudyDataMap?> {
+        log.info("getStudyDataMap: {}", classRoomId)
+        return classRoomService.getStudyDataMap(classRoomId)
+    }
+    @MessageMapping("{classRoomId}/drawPathList")
+    fun getDrawPathList(
+        @DestinationVariable classRoomId: String,
+    ): Mono<MutableList<CanvasDraw?>> {
+        log.info("getDrawPathList: {}", classRoomId)
+        return classRoomService.getCanvasDrawPathList(classRoomId)
+    }
 
     /**
      * 테스트용: envelop 구조의 메세지를 전송하고 받는다.

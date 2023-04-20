@@ -7,11 +7,11 @@ import org.springframework.data.mongodb.core.mapping.Document
  * classRoom 별 studyData
  */
 @Document
-class ClassRoomStudyDataMap(// ClassRoom Id
-    @field:Id private val classRoomId: String
+class ClassStudyDataMap(// ClassRoom Id
+    @Id var classRoomId: String,
+    var studyDataMap: MutableMap<Int, StudyData>? = null
 ) {
-    private var studyDataMap: MutableMap<Int, StudyData>? = null
-    fun setStudyData(studyData: StudyData): ClassRoomStudyDataMap {
+    fun setStudyData(studyData: StudyData): ClassStudyDataMap {
         if (studyDataMap == null) {
             studyDataMap = HashMap()
         }

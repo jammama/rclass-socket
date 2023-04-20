@@ -4,13 +4,15 @@ package com.learnershi.rclasssocket.entity
  * StudyData
  *
  */
-class StudyData {
-    private val name: String? = null // 탭 이름
-    private val fileName: String? = null // File 이름
-    private val pageIndex = 0 // 현재 이미지 index
-    val tabIndex = 0 // 현재 탭 index
-    private val pages: List<String>? = null // 이미지 경로 List
-    private val quizSubmit = emptyList<QuizSubmit>()
+data class StudyData(
+    var name: String? = null,
+    var fileName: String? = null,
+    var pageIndex: Int = 0,
+    var tabIndex: Int = 0,
+    var pages: List<String>? = null,
+    var quizSubmit: List<QuizSubmit> = emptyList<QuizSubmit>()
+) {
+
 
     class QuizSubmit {
         private val questionType: String? = null

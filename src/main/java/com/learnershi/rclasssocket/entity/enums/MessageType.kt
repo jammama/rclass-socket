@@ -11,6 +11,7 @@ enum class MessageType {
 
     // ClassRoom
     CONNECT,
+    CLASS_ROOM_INFO,
     PATCH_ROOM,
     STUDENT_CONNECT,
     STUDENT_DISCONNECT,

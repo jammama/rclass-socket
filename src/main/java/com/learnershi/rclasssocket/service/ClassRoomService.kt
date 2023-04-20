@@ -1,9 +1,7 @@
 package com.learnershi.rclasssocket.service
 
 import com.learnershi.rclasssocket.controller.EnvelopSendService
-import com.learnershi.rclasssocket.entity.Activity
-import com.learnershi.rclasssocket.entity.ClassRoom
-import com.learnershi.rclasssocket.entity.Reveal
+import com.learnershi.rclasssocket.entity.*
 import com.learnershi.rclasssocket.entity.common.Envelop
 import com.learnershi.rclasssocket.entity.common.ServerResult
 import com.learnershi.rclasssocket.entity.enums.ClassState
@@ -17,10 +15,9 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.bodyToMono
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.switchIfEmpty
 import java.time.LocalDateTime
 import java.util.stream.Collectors
 
@@ -29,7 +26,7 @@ class ClassRoomService(
     private val classRoomRepository: ClassRoomRepository,
     private val canvasDrawRepository: CanvasDrawRepository,
     private val classRoomLogRepository: ClassRoomLogRepository,
-    private val classRoomStudyDataMapRepository: ClassRoomStudyDataMapRepository,
+    private val studyDataMapRepository: StudyDataMapRepository,
     private val activityRepository: ActivityRepository,
     private val classGoalRepository: ClassGoalRepository,
     private val revealRepository: RevealRepository,
@@ -47,9 +44,9 @@ class ClassRoomService(
      * @param userSeq 사용자 시퀀스
      * @return Mono<ServerResponse> 응답
      */
-    fun createClassRoom(request: ServerRequest): Mono<ServerResponse> {
-        val userSeq = request.pathVariable("userSeq")
-        val userName = request.queryParam("userName").orElse("익명의 강사")
+
+
+    fun createClassRoom(userSeq: String, userName: String): Mono<ClassRoom> {
         log.info("create class - {} {}", userSeq, userName)
         val newClassRoom = ClassRoom(
             teacherSeq = userSeq,
@@ -57,21 +54,44 @@ class ClassRoomService(
             roomState = ClassState.WAIT,
             startDate = LocalDateTime.now()
         )
-        return classRoomRepository.save(newClassRoom).flatMap { r -> ServerResult.success().data(r).build() }
+        return classRoomRepository.save(newClassRoom)
     }
 
     /**
-     * ClassRoom를 조회한다
+     * ClassRoom을 조회한다
      *
      * @param classRoomId 클래스룸 아이디
-     * @return Mono<ServerResponse> 응답
+     * @return Mono<ClassRoom> 클래스룸
      */
-    fun getClassRoom(request: ServerRequest): Mono<ServerResponse> {
-        val classRoomId = request.pathVariable("classRoomId")
-        log.info("get class - {}", classRoomId)
-        return classRoomRepository.findById(classRoomId).flatMap { r -> ServerResult.success().data(r).build() }
+    fun getClassRoom(classRoomId: String): Mono<ClassRoom?> {
+        return classRoomRepository.findById(classRoomId).switchIfEmpty { Mono.error(RuntimeException("not found")) }
     }
 
+    /**
+     * ClassRoom 내 접속중인 유저 목록을 조회한다.
+     *
+     * @param classRoomId 클래스룸 아이디
+     * @return Mono<Collections<User>> 유저 목록
+     */
+    fun getClassRoomSessionUsers(classRoomId: String): Mono<Collection<User>?> {
+        return Mono.just(classUserSessionsRepository.findByClassRoomId(classRoomId).map { it.user })
+    }
+
+    /**
+     * studyData정보 조회
+     *
+     * @param classRoomId : 클래스룸 아이디
+     */
+    fun getStudyDataMap(classRoomId: String): Mono<ClassStudyDataMap?> {
+        return studyDataMapRepository.findById(classRoomId).switchIfEmpty { createStudyDataMap(classRoomId) }
+    }
+
+    /**
+     * studyData 생성
+     */
+    fun createStudyDataMap(classRoomId: String): Mono<ClassStudyDataMap?> {
+        return studyDataMapRepository.save(ClassStudyDataMap(classRoomId))
+    }
 
     /**
      * ClassRoom을 수정한다.
@@ -80,15 +100,13 @@ class ClassRoomService(
      * @param patchRoom 수정할 클래스룸
      * @return Mono<ServerResponse> 응답
      */
-    fun updateClassRoom(request: ServerRequest): Mono<ServerResponse> {
-        val classRoomId = request.pathVariable("classRoomId")
-        val patchRoom = request.bodyToMono<ClassRoom>()
+
+    fun updateClassRoom(classRoomId: String, patchRoom: ClassRoom): Mono<ClassRoom> {
         return classRoomRepository.findById(classRoomId)
             .defaultIfEmpty(ClassRoom())
             .flatMap { classRoom ->
-                patchRoom.flatMap {
-                    classRoomRepository.save( classRoom!!.modify(it) )
-                        .doOnSuccess {
+                classRoomRepository.save( classRoom!!.modify(patchRoom) )
+                    .doOnSuccess {
                         r -> envelopSendService.sendMessageQueue(
                         Envelop(
                             msgType = MessageType.PATCH_ROOM,
@@ -96,23 +114,13 @@ class ClassRoomService(
                             data = r,
                             userType = UserType.ALL
                         ))
-                    }.flatMap { r ->
-                        ServerResult.success().data(r).build()
                     }
-                }
             }
     }
 
-    /**
-     * 저장된 draw path List전송
-     *
-     * @param classRoomId 클래스룸 아이디
-     * @return Mono<ServerResponse> 결과
-    </ServerResponse> */
-    fun sendCanvasDrawPathList(request: ServerRequest): Mono<ServerResponse> {
-        val classRoomId = request.pathVariable("classRoomId")
+    fun getCanvasDrawPathList(classRoomId: String): Mono<MutableList<CanvasDraw?>> {
         return canvasDrawRepository.findAllByClassRoomId(classRoomId)
-            .collectList().flatMap { r -> ServerResult.success().data(r).build() }
+            .collectList().defaultIfEmpty(emptyList())
     }
 
     /**
@@ -187,15 +195,7 @@ class ClassRoomService(
             .flatMap { classRoom -> ServerResult.success().data(classRoom).build() }
     }
 
-    /**
-     * studyData정보 조회
-     *
-     * @param classRoomId : 클래스룸 아이디
-     */
-    fun getStudyData(classRoomId: String): Mono<ServerResponse> {
-        return classRoomStudyDataMapRepository.findById(classRoomId)
-            .flatMap { studyData -> ServerResult.success().data(studyData).build() }
-    }
+
 
 
     /**
