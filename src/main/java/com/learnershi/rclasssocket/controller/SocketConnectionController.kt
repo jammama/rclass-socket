@@ -1,12 +1,8 @@
 package com.learnershi.rclasssocket.controller
 
-import com.learnershi.rclasssocket.entity.CanvasDraw
-import com.learnershi.rclasssocket.entity.ClassRoom
-import com.learnershi.rclasssocket.entity.ClassStudyDataMap
-import com.learnershi.rclasssocket.entity.User
+import com.learnershi.rclasssocket.entity.*
 import com.learnershi.rclasssocket.entity.common.Envelop
 import com.learnershi.rclasssocket.log.Log
-import com.learnershi.rclasssocket.repository.ClassUserSessionsRepository
 import com.learnershi.rclasssocket.service.ClassRoomService
 import com.learnershi.rclasssocket.service.SocketService
 import org.springframework.messaging.handler.annotation.DestinationVariable
@@ -20,7 +16,6 @@ import reactor.core.publisher.Mono
 
 @Controller
 class SocketConnectionController(
-    private val classUserSessionsRepository: ClassUserSessionsRepository,
     private val classRoomService: ClassRoomService,
     private val socketService: SocketService,
     private val envelopSendService: EnvelopSendService
@@ -94,6 +89,11 @@ class SocketConnectionController(
             }.subscribe()
         }.thenReturn(user)
     }
+    /**
+     * 클래스룸 정보 조회
+     * @param classRoomId 클래스룸 아이디
+     * @return 클래스룸 정보
+     */
     @MessageMapping("{classRoomId}/classRoom")
     fun getClassRoomInfo(
         @DestinationVariable classRoomId: String,
@@ -102,6 +102,11 @@ class SocketConnectionController(
         return classRoomService.getClassRoom(classRoomId)
     }
 
+    /**
+     * 클래스룸 접속자 정보 조회
+     * @param classRoomId 클래스룸 아이디
+     * @return 클래스룸 접속자 정보
+     */
     @MessageMapping("{classRoomId}/users")
     fun getClassRoomSessionUsers(
         @DestinationVariable classRoomId: String,
@@ -110,6 +115,11 @@ class SocketConnectionController(
         return classRoomService.getClassRoomSessionUsers(classRoomId)
     }
 
+    /**
+     * 클래스룸 학습 데이터 조회
+     * @param classRoomId 클래스룸 아이디
+     * @return 클래스룸 학습 데이터
+     */
     @MessageMapping("{classRoomId}/studyDataMap")
     fun getStudyDataMap(
         @DestinationVariable classRoomId: String,
@@ -117,6 +127,58 @@ class SocketConnectionController(
         log.info("getStudyDataMap: {}", classRoomId)
         return classRoomService.getStudyDataMap(classRoomId)
     }
+
+
+    /**
+     * 수업 상태 변경
+     * @param classRoomId 클래스룸 아이디
+     * @param classRoom 클래스룸 정보
+     * @return 업데이트 결과
+     */
+    @MessageMapping("{classRoomId}/classRoomStatus")
+    fun changeClassRoomStatus(
+        @DestinationVariable classRoomId: String,
+        @Payload classRoom: ClassRoom
+    ): Mono<ClassRoom> {
+        log.info("changeClassRoomStatus: {}", classRoomId)
+        return classRoomService.updateClassRoom(classRoomId, classRoom)
+    }
+
+    /**
+     * 클래스룸 로그 조회
+     * @param classRoomId 클래스룸 아이디
+     * @return 클래스룸 로그
+     */
+    @MessageMapping("{classRoomId}/log")
+    fun getClassRoomLog(
+        @DestinationVariable classRoomId: String,
+    ): Mono<MutableList<ClassRoomLog?>> {
+        log.info("getClassRoomLog: {}", classRoomId)
+        return classRoomService.getClassLogList(classRoomId)
+    }
+
+    /**
+     * 클래스룸 메모 조회
+     * @param classRoomId 클래스룸 아이디
+     * @return 클래스룸 메모 리스트
+     */
+    @MessageMapping("{classRoomId}/memo/{tabIndex}/{pageIndex}")
+    fun getClassRoomMemo(
+        @DestinationVariable classRoomId: String,
+        @DestinationVariable tabIndex: Int,
+        @DestinationVariable pageIndex: Int,
+    ): Mono<PostIt?> {
+        log.info("getClassRoomMemo: {}", classRoomId)
+        return classRoomService.getMemo(classRoomId, tabIndex, pageIndex)
+    }
+
+
+
+    /**
+     * 클래스룸 드로잉 정보 조회
+     * @param classRoomId 클래스룸 아이디
+     * @return 클래스룸 드로잉 정보
+     */
     @MessageMapping("{classRoomId}/drawPathList")
     fun getDrawPathList(
         @DestinationVariable classRoomId: String,

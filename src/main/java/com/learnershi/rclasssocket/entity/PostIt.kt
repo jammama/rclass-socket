@@ -9,21 +9,11 @@ import org.springframework.data.mongodb.core.mapping.Document
  */
 
 @Document
-class PostIt {
+data class PostIt(
     @Id
-    private val id: String? = null
-    private var classRoomId: String? = null
-
-    // 탭 인덱스
-    private val tabIndex: Int? = null
-
-    // 페이지 인덱스
-    private val pageIndex: Int? = null
-    fun setClassRoomId(classRoomId: String?): PostIt {
-        this.classRoomId = classRoomId
-        return this
-    }
-
-    // 포스트잇 목록 데이터
-    private val data: List<Map<*, *>>? = null
-}
+    var id: String? = null,
+    var classRoomId: String? = null,
+    var tabIndex: Int? = null,
+    var pageIndex: Int? = null,
+    var data: List<Map<*, *>>? = null
+)

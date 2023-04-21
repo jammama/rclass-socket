@@ -30,7 +30,7 @@ class RouterConfig(
 
                 // endpoint 만 작성. 추후 auth 서비스로 변경 고려
                 path("/user").nest {
-                    GET("/{classRoomId}")(userService::getUserClassRoomList)
+                    GET("/{classRoomId}")(userService::getUserClassRoomList) // TODO: 임시. 추후 수정
                     GET("/list/{classRoomId}") { ServerResult.success().build() }
                 }
 

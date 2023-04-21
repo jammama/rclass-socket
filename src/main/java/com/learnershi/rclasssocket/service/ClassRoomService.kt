@@ -105,15 +105,16 @@ class ClassRoomService(
         return classRoomRepository.findById(classRoomId)
             .defaultIfEmpty(ClassRoom())
             .flatMap { classRoom ->
-                classRoomRepository.save( classRoom!!.modify(patchRoom) )
-                    .doOnSuccess {
-                        r -> envelopSendService.sendMessageQueue(
-                        Envelop(
-                            msgType = MessageType.PATCH_ROOM,
-                            classRoomId = classRoomId,
-                            data = r,
-                            userType = UserType.ALL
-                        ))
+                classRoomRepository.save(classRoom!!.modify(patchRoom))
+                    .doOnSuccess { r ->
+                        envelopSendService.sendMessageQueue(
+                            Envelop(
+                                msgType = MessageType.CLASS_CHANGE,
+                                classRoomId = classRoomId,
+                                data = r,
+                                userType = UserType.ALL
+                            )
+                        )
                     }
             }
     }
@@ -129,10 +130,39 @@ class ClassRoomService(
      * @param classRoomId 클래스룸 아이디
      * @return Mono<ServerResponse> 결과
     </ServerResponse> */
-    fun getClassLogList(classRoomId: String): Mono<ServerResponse> {
+    fun getClassLogList(classRoomId: String): Mono<MutableList<ClassRoomLog?>> {
         return classRoomLogRepository.findAllByClassRoomId(classRoomId).collectList()
-            .flatMap { r -> ServerResult.success().data(r).build() }
     }
+
+    /**
+     * 저장된 포스트잇 조회
+     * @param classRoomId : 클래스룸 아이디
+     * @param tabIndex : 탭 인덱스
+     * @param pageIndex : 페이지 인덱스
+     * @return Mono<PostIt?> 해당 페이지의 포스트잇
+     */
+    fun getMemo(classRoomId: String, tabIndex: Int, pageIndex: Int): Mono<PostIt?> {
+        return postItRepository.findByClassRoomIdAndTabIndexAndPageIndex(classRoomId, tabIndex, pageIndex)
+    }
+
+    /**
+     * 포스트잇 저장 | 수정 & 전달
+     * @param classRoomId : 클래스룸 아이디
+     * @param postIt : 포스트잇 정보
+     */
+//    fun sendPostIt(classRoomId: String, postIt: PostIt): Mono<PostIt?> {
+//        return postItRepository.findByClassRoomIdAndTabIndexAndPageIndex(
+//            classRoomId,
+//            postIt.tabIndex,
+//            postIt.pageIndex
+//        )
+//            .defaultIfEmpty(postIt.apply { classRoomId })
+//            .map ( find -> find?.apply { data = postIt.data } )
+//            .flatMap { postItRepository::save }
+//            .flatMap { saved ->
+//                envelopSendService.sendMessageQueue(classRoomId, MessageType.MEMO, saved)
+//            }
+//    }
 
     /**
      * miniWindow Activity 기록 저장
@@ -195,9 +225,6 @@ class ClassRoomService(
             .flatMap { classRoom -> ServerResult.success().data(classRoom).build() }
     }
 
-
-
-
     /**
      * classGoal정보 조회
      *
@@ -242,19 +269,6 @@ class ClassRoomService(
     }
 
     /**
-     * 포스트잇 조회
-     *
-     * @param classRoomId : 클래스룸 아이디
-     * @param tabIndex : 탭 인덱스
-     * @param pageIndex : 페이지 인덱스
-     * @return Mono<ServerResponse> 응답
-    </ServerResponse> */
-    fun getPostIt(classRoomId: String, tabIndex: Int, pageIndex: Int): Mono<ServerResponse?>? {
-        return postItRepository.findByClassRoomIdAndTabIndexAndPageIndex(classRoomId, tabIndex, pageIndex)
-            .flatMap { find -> ServerResult.success().data(find).build() }
-    }
-
-    /**
      * 클래스 룸 내의 배지 목록 조회
      * @param classRoomId : 클래스룸 아이디
      * @return Mono<ServerResponse> 응답 - badgeList : 배지 목록
@@ -289,4 +303,6 @@ class ClassRoomService(
             }
             .flatMap { comprehensionAnswers -> ServerResult.success().data(comprehensionAnswers).build() }
     }
+
+
 }
