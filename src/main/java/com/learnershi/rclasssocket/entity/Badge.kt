@@ -8,22 +8,17 @@ import org.springframework.data.mongodb.core.mapping.Document
  */
 @Document
 class Badge {
-    private val id: String? = null
+    val id: String? = null
 
     // 교실 id
-    private var classRoomId: String? = null
+    var classRoomId: String? = null
 
     // 유저 seq
-    private val userSeq: String? = null
+    var userSeq: String? = null
 
     // 뱃지 타입
-    private val badgeType: BadgeType = BadgeType.NONE
+    var badgeType: BadgeType = BadgeType.NONE
     fun getBadgeType(): String {
         return badgeType.value
-    }
-
-    fun setClassRoomId(classRoomId: String?): Badge {
-        this.classRoomId = classRoomId
-        return this
     }
 }

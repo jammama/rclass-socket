@@ -7,6 +7,6 @@ import reactor.core.publisher.Mono
 
 
 interface ComprehensionAnswerRepository : ReactiveMongoRepository<ComprehensionAnswer?, String?> {
-    fun findByIdAndUserSeq(id: String?, userSeq: String?): Mono<ComprehensionAnswer?>?
+    fun findByIdAndUserSeq(id: String?, userSeq: String?): Mono<ComprehensionAnswer?>
     fun findAllByClassRoomId(classRoomId: String?): Flux<ComprehensionAnswer?>
 }

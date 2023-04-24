@@ -3,11 +3,11 @@ package com.learnershi.rclasssocket.service
 import com.learnershi.rclasssocket.controller.EnvelopSendService
 import com.learnershi.rclasssocket.entity.*
 import com.learnershi.rclasssocket.entity.common.Envelop
-import com.learnershi.rclasssocket.entity.common.ServerResult
 import com.learnershi.rclasssocket.entity.enums.ClassState
 import com.learnershi.rclasssocket.entity.enums.MessageType
 import com.learnershi.rclasssocket.entity.enums.MiniWindowType
 import com.learnershi.rclasssocket.entity.enums.UserType
+import com.learnershi.rclasssocket.exception.BadRequestException
 import com.learnershi.rclasssocket.log.Log
 import com.learnershi.rclasssocket.repository.*
 import org.springframework.data.domain.PageImpl
@@ -15,11 +15,9 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import java.time.LocalDateTime
-import java.util.stream.Collectors
 
 @Service
 class ClassRoomService(
@@ -27,14 +25,14 @@ class ClassRoomService(
     private val canvasDrawRepository: CanvasDrawRepository,
     private val classRoomLogRepository: ClassRoomLogRepository,
     private val studyDataMapRepository: StudyDataMapRepository,
-    private val activityRepository: ActivityRepository,
     private val classGoalRepository: ClassGoalRepository,
     private val revealRepository: RevealRepository,
     private val postItRepository: PostItRepository,
     private val badgeRepository: BadgeRepository,
     private val comprehensionAnswerRepository: ComprehensionAnswerRepository,
     private val classUserSessionsRepository: ClassUserSessionsRepository,
-    private val envelopSendService: EnvelopSendService
+    private val envelopSendService: EnvelopSendService,
+    private val activityRepository: ActivityRepository
 ) {
     private val log = Log.of(this.javaClass)
 
@@ -149,160 +147,348 @@ class ClassRoomService(
      * 포스트잇 저장 | 수정 & 전달
      * @param classRoomId : 클래스룸 아이디
      * @param postIt : 포스트잇 정보
+     * @return Mono<PostIt?> 저장된 포스트잇
      */
-//    fun sendPostIt(classRoomId: String, postIt: PostIt): Mono<PostIt?> {
-//        return postItRepository.findByClassRoomIdAndTabIndexAndPageIndex(
-//            classRoomId,
-//            postIt.tabIndex,
-//            postIt.pageIndex
-//        )
-//            .defaultIfEmpty(postIt.apply { classRoomId })
-//            .map ( find -> find?.apply { data = postIt.data } )
-//            .flatMap { postItRepository::save }
-//            .flatMap { saved ->
-//                envelopSendService.sendMessageQueue(classRoomId, MessageType.MEMO, saved)
-//            }
-//    }
-
-    /**
-     * miniWindow Activity 기록 저장
-     *
-     * @param classRoomId : 클래스룸 아이디
-     * @param miniWindowType : miniWindow 타입
-     * @param entity : 저장할 entity
-     * @return Mono<ServerResponse> 응답
-    </ServerResponse> */
-    fun saveActivityLog(classRoomId: String, miniWindowType: String, entity: Any): Mono<ServerResponse>? {
-        return activityRepository.save(
-            Activity().apply {
-                this.classRoomId = classRoomId
-                this.miniWindowType = MiniWindowType.findByValue(miniWindowType)
-                this.endTime = LocalDateTime.now()
-                this.entity = entity
+    fun sendMemo(classRoomId: String, postIt: PostIt): Mono<PostIt?> {
+        return postItRepository.findByClassRoomIdAndTabIndexAndPageIndex(
+            classRoomId,
+            postIt.tabIndex,
+            postIt.pageIndex
+        )
+            .defaultIfEmpty(
+                PostIt(
+                    tabIndex = postIt.tabIndex,
+                    pageIndex = postIt.pageIndex
+                )
+            )
+            .map { it!!.modify(postIt) }
+            .flatMap { postItRepository.save(it) }
+            .doOnSuccess {
+                envelopSendService.sendMessageQueue(
+                    Envelop(
+                        classRoomId = classRoomId,
+                        msgType = MessageType.MEMO,
+                        data = it,
+                        userType = UserType.STUDENT
+                    )
+                )
             }
-        ).flatMap { activity: Any? -> ServerResult.success().data(activity).build() }
     }
 
     /**
-     * miniWindow Activity 기록 조회
-     *
+     * 포스트잇 삭제 & 전달
      * @param classRoomId : 클래스룸 아이디
-     * @param page : 페이지
-     * @param size : 사이즈
-     * @return Mono<ServerResponse> 응답
-    </ServerResponse> */
-    fun getActivityLogs(classRoomId: String, page: Int, size: Int): Mono<ServerResponse> {
+     * @param postIt : 포스트잇 정보
+     * @return Mono<PostIt?> 삭제된 포스트잇
+     */
+    fun deleteMemo(classRoomId: String, postIt: PostIt): Mono<PostIt?> {
+        return postItRepository.findByClassRoomIdAndTabIndexAndPageIndex(
+            classRoomId,
+            postIt.tabIndex,
+            postIt.pageIndex
+        )
+            .flatMap { it?.id?.let { it1 -> postItRepository.deleteById(it1).thenReturn(it) } }
+            .doOnSuccess {
+                envelopSendService.sendMessageQueue(
+                    Envelop(
+                        classRoomId = classRoomId,
+                        msgType = MessageType.MEMO,
+                        data = it.apply { data = emptyList() },
+                        userType = UserType.STUDENT
+                    )
+                )
+            }
+    }
+
+    /**
+     * 학습 목표 조회
+     * @param classRoomId : 클래스룸 아이디
+     * @return Mono<MutableList<ClassGoal?>> 학습 목표 목록
+     */
+    fun getClassGoalList(classRoomId: String): Mono<MutableList<ClassGoal?>> {
+        return classGoalRepository.findAllByClassRoomId(classRoomId)
+            .collectList()
+    }
+
+    /**
+     * 학습 목표 생성 & 전달
+     * @param classRoomId : 클래스룸 아이디
+     * @param classGoal : 학습 목표
+     * @return Mono<ClassGoal?> 생성된 학습 목표
+     */
+    fun createClassGoal(classRoomId: String, classGoal: ClassGoal): Mono<ClassGoal?> {
+        return classGoalRepository.save(classGoal)
+            .doOnSuccess { saved ->
+                envelopSendService.sendMessageQueue(
+                    Envelop(
+                        classRoomId = classRoomId,
+                        msgType = MessageType.CREATE_CLASS_GOAL,
+                        data = saved,
+                        userType = UserType.STUDENT
+                    )
+                )
+            }
+    }
+
+    /**
+     * 학습 목표 완료/비완료처리 & 전달
+     * @param classRoomId : 클래스룸 아이디
+     * @param classGoal : 학습 목표
+     * @return Mono<ClassGoal?> 완료/비완료처리된 학습 목표
+     */
+    fun updateClassGoal(classRoomId: String, classGoal: ClassGoal): Mono<ClassGoal?> {
+        return classGoalRepository.findById(classGoal.id!!)
+            .map { it?.setDone(classGoal.done)!! }
+            .flatMap { classGoalRepository.save(it) }
+            .doOnSuccess { saved ->
+                envelopSendService.sendMessageQueue(
+                    Envelop(
+                        classRoomId = classRoomId,
+                        msgType = MessageType.UPDATE_CLASS_GOAL,
+                        data = saved,
+                        userType = UserType.STUDENT
+                    )
+                )
+            }
+    }
+
+
+    /**
+     * 학습 목표 삭제처리 & 전달
+     * @param classRoomId : 클래스룸 아이디
+     * @param classGoal : 학습 목표
+     * @return Mono<ClassGoal?> 삭제된 학습 목표
+     */
+    fun deleteClassGoal(classRoomId: String, classGoal: ClassGoal): Mono<ClassGoal?> {
+        return classGoalRepository.deleteById(classGoal.id!!).thenReturn(classGoal)
+            .doOnSuccess {
+                envelopSendService.sendMessageQueue(
+                    Envelop(
+                        classRoomId = classRoomId,
+                        msgType = MessageType.DELETE_CLASS_GOAL,
+                        data = it,
+                        userType = UserType.STUDENT
+                    )
+                )
+            }
+    }
+
+    /**
+     * 가리기 조회
+     * @param classRoomId : 클래스룸 아이디
+     * @param tabIndex : 탭 인덱스
+     * @param pageIndex : 페이지 인덱스
+     * @return Mono<Reveal?> 가리기 정보
+     */
+    fun getReveal(classRoomId: String, tabIndex: Int, pageIndex: Int): Mono<Reveal?> {
+        return revealRepository.findByClassRoomIdAndTabIndexAndPageIndex(classRoomId, tabIndex, pageIndex)
+    }
+
+    /**
+     * 가리기 저장 & 전달
+     * @param classRoomId : 클래스룸 아이디
+     * @param reveal : 가리기 정보
+     * @return Mono<Reveal?> 저장된 가리기 정보
+     */
+    fun sendReveal(classRoomId: String, reveal: Reveal): Mono<Reveal?> {
+        return revealRepository.findByClassRoomIdAndTabIndexAndPageIndex(classRoomId, reveal.tabIndex, reveal.pageIndex)
+            .defaultIfEmpty(reveal.apply { this.classRoomId = classRoomId })
+            .flatMap { revealRepository.save(it!!.setData(reveal.tmpData!!)) }
+            .doOnSuccess {
+                envelopSendService.sendMessageQueue(
+                    Envelop(
+                        classRoomId = classRoomId,
+                        msgType = MessageType.REVEAL,
+                        data = it,
+                        userType = UserType.STUDENT
+                    )
+                )
+            }
+    }
+
+    /**
+     * 가리기 임시 저장
+     * @param classRoomId : 클래스룸 아이디
+     * @param reveal : 가리기 정보
+     * @return Mono<Reveal?> 저장된 가리기 정보
+     */
+    fun saveRevealTmpData(classRoomId: String, reveal: Reveal): Mono<Reveal?> {
+        return revealRepository.findByClassRoomIdAndTabIndexAndPageIndex(classRoomId, reveal.tabIndex, reveal.pageIndex)
+            .defaultIfEmpty(reveal.apply { this.classRoomId = classRoomId })
+            .flatMap { revealRepository.save(it!!.apply { tmpData = reveal.tmpData!! }) }
+    }
+
+    /**
+     * 가리기 삭제 & 전달
+     * @param classRoomId : 클래스룸 아이디
+     * @param reveal : 가리기 정보
+     * @return Mono<Reveal?> 삭제된 가리기 정보
+     */
+    fun deleteReveal(classRoomId: String, reveal: Reveal): Mono<Reveal?> {
+        return revealRepository.findByClassRoomIdAndTabIndexAndPageIndex(classRoomId, reveal.tabIndex, reveal.pageIndex)
+            .flatMap { revealRepository.deleteById(it!!.id!!).thenReturn(it) }
+            .doOnSuccess {
+                envelopSendService.sendMessageQueue(
+                    Envelop(
+                        classRoomId = classRoomId,
+                        msgType = MessageType.REVEAL,
+                        data = it.apply { data = emptyList() },
+                        userType = UserType.STUDENT
+                    )
+                )
+            }
+    }
+
+    /**
+     * 이해도 설문 전달
+     * @param classRoomId : 클래스룸 아이디
+     * @param comprehensionQuestion : 이해도 설문
+     * @return Mono<ComprehensionQuestion?> 전달된 이해도 설문
+     */
+    fun sendComprehensionQuestion(
+        classRoomId: String,
+        comprehensionQuestion: ComprehensionQuestion
+    ): Mono<ComprehensionQuestion?> {
+        envelopSendService.sendMessageQueue(
+            Envelop(
+                classRoomId = classRoomId,
+                msgType = MessageType.COMPREHENSION_QUESTION,
+                data = comprehensionQuestion,
+                userType = UserType.STUDENT
+            )
+        )
+        return Mono.just(comprehensionQuestion)
+    }
+
+    /**
+     * 이해도 설문 답안 제출
+     * @param classRoomId : 클래스룸 아이디
+     * @param comprehensionAnswer : 이해도 설문 답안
+     * @return Mono<ComprehensionAnswer?> 제출된 이해도 설문 답안
+     */
+    fun submitComprehensionAnswer(classRoomId: String, answer: ComprehensionAnswer): Mono<ComprehensionAnswer?> {
+        return comprehensionAnswerRepository.findByIdAndUserSeq(answer.id, answer.userSeq)
+            .handle { find, sink ->
+                if (find != null) {
+                    sink.error(BadRequestException("이미 설문에 응답하였습니다."))
+                } else {
+                    sink.next(answer.apply { this.classRoomId = classRoomId })
+                }
+            }
+            .flatMap { comprehensionAnswerRepository.save(it) }
+            .doOnSuccess {
+                envelopSendService.sendMessageQueue(
+                    Envelop(
+                        classRoomId = classRoomId,
+                        msgType = MessageType.COMPREHENSION_ANSWER,
+                        data = it,
+                        userType = UserType.TEACHER
+                    )
+                )
+            }
+    }
+
+    /**
+     * 이해도 설문 답안 조회
+     * @param classRoomId : 클래스룸 아이디
+     * @return Mono<MutableList<ComprehensionAnswer?>> 이해도 설문 답안 리스트
+     */
+    fun getComprehensionAnswerList(classRoomId: String): Mono<MutableList<ComprehensionAnswer?>> {
+        return comprehensionAnswerRepository.findAllByClassRoomId(classRoomId).collectList()
+    }
+
+    /**
+     * 클래스 룸 내 유저의 배지리스트 조회
+     * @param classRoomId : 클래스룸 아이디
+     * @return Mono<MutableList<Badge?>> 배지 리스트
+     */
+    fun getBadgeList(classRoomId: String): Mono<MutableList<Badge?>> {
+        return badgeRepository.findAllByClassRoomId(classRoomId).collectList()
+    }
+
+    /**
+     * 배지 발급
+     * @param classRoomId : 클래스룸 아이디
+     * @param badge : 배지 정보
+     */
+    fun sendBadge(classRoomId: String, badge: Badge): Mono<Badge?> {
+        return badgeRepository.save(badge.apply { this.classRoomId = classRoomId })
+            .doOnSuccess {
+                envelopSendService.sendMessageQueue(
+                    Envelop(
+                        classRoomId = classRoomId,
+                        msgType = MessageType.BADGE,
+                        data = it,
+                        userType = UserType.STUDENT
+                    )
+                )
+            }
+    }
+
+    /**
+     * studyData 및 공유되는 페이지 인덱스 저장 & 전달
+     * @param classRoomId : 클래스룸 아이디
+     * @param studyData : studyData 정보
+     * @return Mono<ClassStudyDataMap?> 저장된 studyData 정보
+     */
+    fun sendStudyData(classRoomId: String, studyData: StudyData): Mono<ClassStudyDataMap> {
+        return studyDataMapRepository.findById(classRoomId)
+            .defaultIfEmpty(ClassStudyDataMap(classRoomId = classRoomId))
+            .flatMap { studyDataMapRepository.save(it!!.apply { this.studyDataMap[studyData.tabIndex] = studyData }) }
+            .doOnSuccess { saveSharedIndex(classRoomId, studyData) }
+            .doOnSuccess {
+                envelopSendService.sendMessageQueue(
+                    Envelop(
+                        classRoomId = classRoomId,
+                        msgType = MessageType.STUDY_DATA,
+                        data = it,
+                        userType = UserType.STUDENT
+                    )
+                )
+            }
+    }
+
+    /**
+     * 공유되는 페이지 인덱스 저장
+     */
+    private fun saveSharedIndex(classRoomId: String, studyData: StudyData) {
+        classRoomRepository.findById(classRoomId).map {
+            it!!.apply {
+                sharePageIndex = studyData.pageIndex
+                shareTabIndex = studyData.tabIndex
+            }
+        }.flatMap { classRoomRepository.save(it) }
+    }
+
+    /**
+     * activity 로그 저장
+     * @param classRoomId : 클래스룸 아이디
+     * @param activity : activity 정보
+     * @return Mono<Activity?> 저장된 activity 정보
+     */
+    fun saveActivityLog(classRoomId: String, miniWindowType: MiniWindowType, entity: Any?): Mono<Activity?> {
+        return activityRepository.save(Activity(
+            classRoomId = classRoomId,
+            miniWindowType = miniWindowType,
+            entity = entity
+        ))
+    }
+
+    /**
+     * activity 로그 조회
+     * @param classRoomId : 클래스룸 아이디
+     * @param page : 페이지 번호
+     * @param size : 페이지 사이즈
+     * @return Mono<PageImpl<Activity?>> activity 로그 리스트
+     */
+    fun getActivityLogs(classRoomId: String, page: Int, size: Int): Mono<PageImpl<Activity?>> {
         val pageable: Pageable = PageRequest.of(page - 1, size, Sort.Direction.DESC, "endTime")
         return activityRepository.countByClassRoomId(classRoomId)
             .zipWith(
                 activityRepository.findAllByClassRoomId(classRoomId, pageable)
                     .collectList()
             )
-            .flatMap { activity ->
-                ServerResult.success()
-                    .data(PageImpl(activity.getT2(), Pageable.unpaged(), activity.getT1()))
-                    .build()
-            }
+            .map { PageImpl(it.t2, Pageable.unpaged(), it.t1) }
     }
-
-    /**
-     * studyRoom 내의 userList 조회
-     *
-     * @param classRoomId : 클래스룸 아이디
-     * @return Mono<ServerResponse> 응답
-    </ServerResponse> */
-    fun getUserList(classRoomId: String): Mono<ServerResponse> {
-        return ServerResult.success().data(classUserSessionsRepository.findByClassRoomId(classRoomId)).build()
-    }
-
-    /**
-     * studyRoom 정보 조회
-     *
-     * @param classRoomId : 클래스룸 아이디
-     */
-    fun getClassRoomInfo(classRoomId: String): Mono<ServerResponse> {
-        return classRoomRepository.findById(classRoomId)
-            .flatMap { classRoom -> ServerResult.success().data(classRoom).build() }
-    }
-
-    /**
-     * classGoal정보 조회
-     *
-     * @param classRoomId : 클래스룸 아이디
-     */
-    fun getClassGoalList(classRoomId: String): Mono<ServerResponse> {
-        return classGoalRepository.findAllByClassRoomId(classRoomId)
-            .collectList()
-            .flatMap { classGoalList -> ServerResult.success().data(classGoalList).build() }
-    }
-
-    /**
-     * 가리기 임시 저장 및 수정
-     *
-     * @param classRoomId : 클래스룸 아이디
-     * @param reveal : 가리기 정보
-     * @return Mono<ServerResponse> 응답
-    </ServerResponse> */
-    fun saveReveal(classRoomId: String, reveal: Reveal): Mono<ServerResponse?> {
-        return revealRepository.findByClassRoomIdAndTabIndexAndPageIndex(
-            classRoomId,
-            reveal.tabIndex,
-            reveal.pageIndex
-        )
-            .defaultIfEmpty(reveal)
-            .map { r -> r!!.apply { tmpData = reveal.tmpData } }
-            .flatMap { r -> revealRepository.save(r) }
-            .flatMap { saved -> ServerResult.success().data(saved).build() }
-    }
-
-    /**
-     * 가리기 조회
-     *
-     * @param classRoomId : 클래스룸 아이디
-     * @param tabIndex : 탭 인덱스
-     * @param pageIndex : 페이지 인덱스
-     * @return Mono<ServerResponse> 응답
-    </ServerResponse> */
-    fun getReveal(classRoomId: String, tabIndex: Int, pageIndex: Int): Mono<ServerResponse?>? {
-        return revealRepository.findByClassRoomIdAndTabIndexAndPageIndex(classRoomId, tabIndex, pageIndex)
-            .flatMap { find -> ServerResult.success().data(find).build() }
-    }
-
-    /**
-     * 클래스 룸 내의 배지 목록 조회
-     * @param classRoomId : 클래스룸 아이디
-     * @return Mono<ServerResponse> 응답 - badgeList : 배지 목록
-    </ServerResponse> */
-    fun getBadgeByClassRoom(classRoomId: String): Mono<ServerResponse?>? {
-        return badgeRepository.findAllByClassRoomId(classRoomId)
-            .collectList()
-            .flatMap { badgeList -> ServerResult.success().data(badgeList).build() }
-    }
-
-    /**
-     * 유저의 배지 목록 조회
-     * @param userSeq : 유저 Seq
-     * @return Mono<ServerResponse> 응답 - badgeList : 배지 목록
-    </ServerResponse> */
-    fun getBadgeByUser(userSeq: String): Mono<ServerResponse?>? {
-        return badgeRepository.findAllByUserSeq(userSeq)
-            .collectList()
-            .flatMap { badgeList -> ServerResult.success().data(badgeList).build() }
-    }
-
-    /**
-     * 설문 답안 목록 조회
-     * @param classRoomId : 클래스룸 아이디
-     * @return Mono<ServerResponse> 응답 - {questionId: comprehensionAnswerList} : 설문 답안 목록
-    </ServerResponse> */
-    fun getComprehensionAnswerList(classRoomId: String): Mono<ServerResponse?>? {
-        return comprehensionAnswerRepository.findAllByClassRoomId(classRoomId)
-            .collectList()
-            .map { comprehensionAnswers ->
-                comprehensionAnswers.stream().collect(Collectors.groupingBy { r -> r!!.id })
-            }
-            .flatMap { comprehensionAnswers -> ServerResult.success().data(comprehensionAnswers).build() }
-    }
-
 
 }

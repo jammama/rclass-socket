@@ -18,8 +18,6 @@ data class Activity(
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "ko_KR", timezone = "Asia/Seoul")
     var endTime: LocalDateTime = LocalDateTime.now()
 ) {
-    constructor() : this(null, MiniWindowType.NONE, "", null, LocalDateTime.now())
-
     fun getMiniWindowType(): String {
         return miniWindowType.value
     }

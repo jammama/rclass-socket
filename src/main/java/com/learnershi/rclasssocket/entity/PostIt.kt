@@ -16,4 +16,9 @@ data class PostIt(
     var tabIndex: Int? = null,
     var pageIndex: Int? = null,
     var data: List<Map<*, *>>? = null
-)
+) {
+    fun modify(postIt: PostIt): PostIt {
+        this.data = postIt.data
+        return this
+    }
+}

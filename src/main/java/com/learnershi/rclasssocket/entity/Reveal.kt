@@ -8,24 +8,22 @@ import org.springframework.data.mongodb.core.mapping.Document
  *
  */
 @Document
-class Reveal {
+data class Reveal(
     @Id
-    private val id: String? = null
-    private var classRoomId: String? = null
-
+    var id: String? = null,
+    var classRoomId: String? = null,
     // 탭 인덱스
-    val tabIndex: Int? = null
-
+    var tabIndex: Int? = null,
     // 페이지 인덱스
-    val pageIndex: Int? = null
-    fun setClassRoomId(classRoomId: String?): Reveal {
-        this.classRoomId = classRoomId
-        return this
-    }
-
+    var pageIndex: Int? = null,
     // 가리기 스티커 목록 데이터
-    private val data: List<Map<*, *>>? = null
-
+    var data: List<Map<*, *>>? = null,
     // 가리기 스티커 저장된 데이터
     var tmpData: List<Map<*, *>>? = null
+) {
+    fun setData(data: List<Map<*, *>>): Reveal {
+        this.tmpData = data
+        this.data = data
+        return this
+    }
 }

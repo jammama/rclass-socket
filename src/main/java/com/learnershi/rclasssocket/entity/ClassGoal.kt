@@ -11,7 +11,12 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class ClassGoal(
     @Id
     var id: String? = null,
-    val classRoomId: String,
-    val goal: String,
-    val done: Boolean
-)
+    var classRoomId: String,
+    var goal: String,
+    var done: Boolean
+){
+    fun setDone(done: Boolean): ClassGoal {
+       this.done = done
+       return this
+    }
+}
