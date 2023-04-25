@@ -27,7 +27,7 @@ class ClassRoomService(
     private val studyDataMapRepository: StudyDataMapRepository,
     private val classGoalRepository: ClassGoalRepository,
     private val revealRepository: RevealRepository,
-    private val postItRepository: PostItRepository,
+    private val memoRepository: MemoRepository,
     private val badgeRepository: BadgeRepository,
     private val comprehensionAnswerRepository: ComprehensionAnswerRepository,
     private val classUserSessionsRepository: ClassUserSessionsRepository,
@@ -139,30 +139,29 @@ class ClassRoomService(
      * @param pageIndex : 페이지 인덱스
      * @return Mono<PostIt?> 해당 페이지의 포스트잇
      */
-    fun getMemo(classRoomId: String, tabIndex: Int, pageIndex: Int): Mono<PostIt?> {
-        return postItRepository.findByClassRoomIdAndTabIndexAndPageIndex(classRoomId, tabIndex, pageIndex)
+    fun getMemo(classRoomId: String, tabIndex: Int, pageIndex: Int): Mono<Memo?> {
+        return memoRepository.findByClassRoomIdAndTabIndexAndPageIndex(classRoomId, tabIndex, pageIndex)
     }
 
     /**
      * 포스트잇 저장 | 수정 & 전달
      * @param classRoomId : 클래스룸 아이디
-     * @param postIt : 포스트잇 정보
+     * @param memo : 포스트잇 정보
      * @return Mono<PostIt?> 저장된 포스트잇
      */
-    fun sendMemo(classRoomId: String, postIt: PostIt): Mono<PostIt?> {
-        return postItRepository.findByClassRoomIdAndTabIndexAndPageIndex(
+    fun sendMemo(classRoomId: String, memo: Memo): Mono<Memo?> {
+        return memoRepository.findByClassRoomIdAndTabIndexAndPageIndex(
             classRoomId,
-            postIt.tabIndex,
-            postIt.pageIndex
+            memo.tabIndex,
+            memo.pageIndex
         )
             .defaultIfEmpty(
-                PostIt(
-                    tabIndex = postIt.tabIndex,
-                    pageIndex = postIt.pageIndex
-                )
+                memo.apply {
+                    this.classRoomId = classRoomId
+                }
             )
-            .map { it!!.modify(postIt) }
-            .flatMap { postItRepository.save(it) }
+            .map { it!!.modify(memo) }
+            .flatMap { memoRepository.save(it) }
             .doOnSuccess {
                 envelopSendService.sendMessageQueue(
                     Envelop(
@@ -178,16 +177,16 @@ class ClassRoomService(
     /**
      * 포스트잇 삭제 & 전달
      * @param classRoomId : 클래스룸 아이디
-     * @param postIt : 포스트잇 정보
+     * @param memo : 포스트잇 정보
      * @return Mono<PostIt?> 삭제된 포스트잇
      */
-    fun deleteMemo(classRoomId: String, postIt: PostIt): Mono<PostIt?> {
-        return postItRepository.findByClassRoomIdAndTabIndexAndPageIndex(
+    fun deleteMemo(classRoomId: String, memo: Memo): Mono<Memo?> {
+        return memoRepository.findByClassRoomIdAndTabIndexAndPageIndex(
             classRoomId,
-            postIt.tabIndex,
-            postIt.pageIndex
+            memo.tabIndex,
+            memo.pageIndex
         )
-            .flatMap { it?.id?.let { it1 -> postItRepository.deleteById(it1).thenReturn(it) } }
+            .flatMap { it?.id?.let { it1 -> memoRepository.deleteById(it1).thenReturn(it) } }
             .doOnSuccess {
                 envelopSendService.sendMessageQueue(
                     Envelop(
@@ -363,7 +362,7 @@ class ClassRoomService(
     /**
      * 이해도 설문 답안 제출
      * @param classRoomId : 클래스룸 아이디
-     * @param comprehensionAnswer : 이해도 설문 답안
+     * @param answer : 이해도 설문 답안
      * @return Mono<ComprehensionAnswer?> 제출된 이해도 설문 답안
      */
     fun submitComprehensionAnswer(classRoomId: String, answer: ComprehensionAnswer): Mono<ComprehensionAnswer?> {
@@ -463,7 +462,8 @@ class ClassRoomService(
     /**
      * activity 로그 저장
      * @param classRoomId : 클래스룸 아이디
-     * @param activity : activity 정보
+     * @param miniWindowType : 미니윈도우 타입
+     * @param entity : activity 정보
      * @return Mono<Activity?> 저장된 activity 정보
      */
     fun saveActivityLog(classRoomId: String, miniWindowType: MiniWindowType, entity: Any?): Mono<Activity?> {

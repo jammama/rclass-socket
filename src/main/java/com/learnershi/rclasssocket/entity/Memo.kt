@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document
  */
 
 @Document
-data class PostIt(
+data class Memo(
     @Id
     var id: String? = null,
     var classRoomId: String? = null,
@@ -17,8 +17,8 @@ data class PostIt(
     var pageIndex: Int? = null,
     var data: List<Map<*, *>>? = null
 ) {
-    fun modify(postIt: PostIt): PostIt {
-        this.data = postIt.data
+    fun modify(memo: Memo): Memo {
+        this.data = memo.data
         return this
     }
 }

@@ -180,7 +180,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @DestinationVariable tabIndex: Int,
         @DestinationVariable pageIndex: Int,
-    ): Mono<PostIt?> {
+    ): Mono<Memo?> {
         log.info("getClassRoomMemo: {}", classRoomId)
         return classRoomService.getMemo(classRoomId, tabIndex, pageIndex)
     }
@@ -188,30 +188,30 @@ class SocketConnectionController(
     /**
      * 클래스룸 메모 전달 & 저장
      * @param classRoomId 클래스룸 아이디
-     * @param postIt 메모 정보
+     * @param memo 메모 정보
      */
     @MessageMapping("{classRoomId}/memo")
     fun sendClassRoomMemo(
         @DestinationVariable classRoomId: String,
-        @Payload postIt: PostIt
-    ): Mono<PostIt?> {
+        @Payload memo: Memo
+    ): Mono<Memo?> {
         log.info("sendClassRoomMemo: {}", classRoomId)
-        return classRoomService.sendMemo(classRoomId, postIt)
+        return classRoomService.sendMemo(classRoomId, memo)
     }
 
     /**
      * 클래스룸 메모 삭제
      * @param classRoomId 클래스룸 아이디
-     * @param postIt 메모 정보
+     * @param memo 메모 정보
      *
      */
     @MessageMapping("{classRoomId}/memo/delete")
     fun deleteClassRoomMemo(
         @DestinationVariable classRoomId: String,
-        @Payload postIt: PostIt
-    ): Mono<PostIt?> {
+        @Payload memo: Memo
+    ): Mono<Memo?> {
         log.info("deleteClassRoomMemo: {}", classRoomId)
-        return classRoomService.deleteMemo(classRoomId, postIt)
+        return classRoomService.deleteMemo(classRoomId, memo)
     }
 
     /**
