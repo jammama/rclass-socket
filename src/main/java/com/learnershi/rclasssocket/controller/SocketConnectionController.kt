@@ -85,11 +85,11 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload user: User
     ): Mono<User?> {
-        return classRoomService.getClassRoom(classRoomId).then(
+        return classRoomService.getClassRoom(classRoomId).doOnSuccess {
             socketService.connect(classRoomId, user, requester).doOnSuccess {
                 envelopSendService.sendMessageQueue(it)
-            }
-        ).thenReturn(user)
+            }.subscribe()
+        }.thenReturn(user)
     }
 
     /**
@@ -434,7 +434,7 @@ class SocketConnectionController(
         @Payload entity: Any?
     ): Mono<Activity?> {
         log.info("saveActivityLog: {}", classRoomId)
-        return classRoomService.saveActivityLog(classRoomId, MiniWindowType.valueOf(miniWindowType), entity)
+        return classRoomService.saveActivityLog(classRoomId, MiniWindowType.findByValue(miniWindowType), entity)
     }
 
     /**

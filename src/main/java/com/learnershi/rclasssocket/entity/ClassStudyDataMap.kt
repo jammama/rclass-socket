@@ -10,4 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document
 class ClassStudyDataMap(// ClassRoom Id
     @Id var classRoomId: String,
     var studyDataMap: MutableMap<Int, StudyData> = HashMap()
-)
+){
+    constructor(classRoomId: String) : this(classRoomId, HashMap()){
+        this.studyDataMap[0] = StudyData()
+    }
+}
