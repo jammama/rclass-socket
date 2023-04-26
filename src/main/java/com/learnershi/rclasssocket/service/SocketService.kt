@@ -27,7 +27,7 @@ class SocketService(
     fun connect(classRoomId: String, user: User, requester: RSocketRequester) {
         // session error 처리
         classUserSessionsRepository.findUserByClassRoomIdAndUserSeq(classRoomId, user.seq)?.let {
-            classUserSessionsRepository.removeUser(classRoomId, user.seq)
+            disconnectUser(classRoomId, user)
             throw RuntimeException("이미 접속중인 사용자입니다.")
         }
         requester.rsocket()!!
@@ -43,7 +43,6 @@ class SocketService(
      * 유저를 세션에서 제거하고 메세지 전송
      */
     private fun disconnectUser(classRoomId: String, user: User) {
-        classUserSessionsRepository.removeUser(classRoomId, user.seq)
         log.info("---user Off {} {}", classRoomId, user.seq)
         envelopSendService.sendMessageQueue(
             Envelop(
@@ -53,6 +52,7 @@ class SocketService(
                 classRoomId = classRoomId
             )
         )
+        classUserSessionsRepository.removeUser(classRoomId, user.seq)
     }
 
     /**

@@ -292,7 +292,13 @@ class ClassRoomService(
     fun sendReveal(classRoomId: String, reveal: Reveal): Mono<Reveal?> {
         return revealRepository.findByClassRoomIdAndTabIndexAndPageIndex(classRoomId, reveal.tabIndex, reveal.pageIndex)
             .defaultIfEmpty(reveal.apply { this.classRoomId = classRoomId })
-            .flatMap { revealRepository.save(it!!.setData(reveal.tmpData!!)) }
+            .flatMap {
+                revealRepository.save(
+                    it!!.apply {
+                        data = reveal.tmpData
+                        tmpData = reveal.tmpData
+                    })
+            }
             .doOnSuccess {
                 envelopSendService.sendMessageQueue(
                     Envelop(
@@ -467,11 +473,13 @@ class ClassRoomService(
      * @return Mono<Activity?> 저장된 activity 정보
      */
     fun saveActivityLog(classRoomId: String, miniWindowType: MiniWindowType, entity: Any?): Mono<Activity?> {
-        return activityRepository.save(Activity(
-            classRoomId = classRoomId,
-            miniWindowType = miniWindowType,
-            entity = entity
-        ))
+        return activityRepository.save(
+            Activity(
+                classRoomId = classRoomId,
+                miniWindowType = miniWindowType,
+                entity = entity
+            )
+        )
     }
 
     /**
