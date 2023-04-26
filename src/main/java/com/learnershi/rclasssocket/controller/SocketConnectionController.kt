@@ -86,9 +86,7 @@ class SocketConnectionController(
         @Payload user: User
     ): Mono<User?> {
         return classRoomService.getClassRoom(classRoomId).doOnSuccess {
-            socketService.connect(classRoomId, user, requester).doOnSuccess {
-                envelopSendService.sendMessageQueue(it)
-            }.subscribe()
+            socketService.connect(classRoomId, user, requester)
         }.thenReturn(user)
     }
 
