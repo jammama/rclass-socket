@@ -5,6 +5,7 @@ import com.learnershi.rclasssocket.entity.User
 import com.learnershi.rclasssocket.entity.common.Envelop
 import com.learnershi.rclasssocket.entity.enums.MessageType
 import com.learnershi.rclasssocket.entity.enums.UserType
+import com.learnershi.rclasssocket.exception.BadRequestException
 import com.learnershi.rclasssocket.log.Log
 import com.learnershi.rclasssocket.repository.ClassUserSessionsRepository
 import com.learnershi.rclasssocket.repository.UserSession
@@ -28,7 +29,7 @@ class SocketService(
         // session error 처리
         classUserSessionsRepository.findUserByClassRoomIdAndUserSeq(classRoomId, user.seq)?.let {
             disconnectUser(classRoomId, user)
-            throw RuntimeException("이미 접속중인 사용자입니다.")
+            throw BadRequestException("이미 접속중인 사용자입니다.")
         }
         requester.rsocket()!!
             .onClose()

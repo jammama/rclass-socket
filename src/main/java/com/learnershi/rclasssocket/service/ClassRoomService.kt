@@ -62,7 +62,7 @@ class ClassRoomService(
      * @return Mono<ClassRoom> 클래스룸
      */
     fun getClassRoom(classRoomId: String): Mono<ClassRoom?> {
-        return classRoomRepository.findById(classRoomId).switchIfEmpty { Mono.error(RuntimeException("not found")) }
+        return classRoomRepository.findById(classRoomId).switchIfEmpty { Mono.error(BadRequestException("not found")) }
     }
 
     /**
