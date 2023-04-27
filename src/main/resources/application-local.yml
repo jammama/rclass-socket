@@ -1,0 +1,41 @@
+
+#port
+server:
+    port: 1122
+
+#mongodb
+spring:
+    data:
+        mongodb:
+            host: 192.168.1.93
+            port: 27017
+            database: rclass
+            username: rclass
+            password: fjsjtmgkdl1!
+            authentication-database: admin
+
+    kafka:
+        consumer:
+            bootstrap-servers: 192.168.1.93:9092
+            properties:
+                spring.json.trusted.packages: "*"
+            group-id: consumer-group
+            auto-offset-reset: latest
+            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+        producer:
+            bootstrap-servers: 192.168.1.93:9092
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+    rsocket:
+        server:
+            mapping-path: "/rsocket"
+            transport: "websocket"
+#Swagger
+springdoc:
+    swagger-ui:
+        path: swagger.html
+
+
+

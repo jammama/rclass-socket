@@ -4,7 +4,7 @@ package com.learnershi.rclasssocket.entity
  * StudyData
  *
  */
-data class StudyData(
+class StudyData(
     var name: String? = null,
     var fileName: String? = null,
     var pageIndex: Int = 0,
@@ -12,8 +12,6 @@ data class StudyData(
     var pages: List<String>? = null,
     var quizSubmit: List<QuizSubmit> = emptyList<QuizSubmit>()
 ) {
-
-
     class QuizSubmit {
         private val questionType: String? = null
         private val quizType: String? = null
