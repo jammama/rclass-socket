@@ -20,10 +20,4 @@ data class Reveal(
     var data: List<Map<*, *>>? = null,
     // 가리기 스티커 저장된 데이터
     var tmpData: List<Map<*, *>>? = null
-) {
-    fun setData(data: List<Map<*, *>>): Reveal {
-        this.tmpData = data
-        this.data = data
-        return this
-    }
-}
+)

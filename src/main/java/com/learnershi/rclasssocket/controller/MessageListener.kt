@@ -4,6 +4,7 @@ import com.learnershi.rclasssocket.channel.ClassRoomChannel
 import com.learnershi.rclasssocket.entity.common.Envelop
 import com.learnershi.rclasssocket.log.Log
 import org.springframework.kafka.annotation.KafkaListener
+import org.springframework.kafka.annotation.TopicPartition
 import org.springframework.stereotype.Component
 
 /**
@@ -22,7 +23,7 @@ class MessageListener(
      *
      * @param envelop 메세지 객체
      */
-    @KafkaListener(topics = [TOPIC])
+    @KafkaListener(topicPartitions = [TopicPartition(topic = TOPIC, partitions = ["0"])])
     fun consume(envelop: Envelop) {
         log.info("MessageListener.consume - envelop: {}", envelop)
         classRoomChannel.send(envelop)
