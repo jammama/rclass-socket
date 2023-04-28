@@ -12,9 +12,8 @@ enum class MessageType {
     // ClassRoom
     CONNECT,
     CLASS_CHANGE,
-    STUDENT_CONNECT,
-    STUDENT_DISCONNECT,
     DISCONNECT,
+
     QUIZ,
     QUIZ_SUBMIT,
     QUIZ_RESULT,
@@ -46,9 +45,7 @@ enum class MessageType {
     TEXTBOOK_CHANGE,
     DRAW_RESET,
 
-    CREATE_CLASS_GOAL,
-    UPDATE_CLASS_GOAL,
-    DELETE_CLASS_GOAL,
+    CLASS_GOAL,
     MEMO,
     REVEAL,
     COMPREHENSION_QUESTION,

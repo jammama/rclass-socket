@@ -221,7 +221,7 @@ class ClassRoomService(
                 envelopSendService.sendMessageQueue(
                     Envelop(
                         classRoomId = classRoomId,
-                        msgType = MessageType.CREATE_CLASS_GOAL,
+                        msgType = MessageType.CLASS_GOAL,
                         data = saved,
                         userType = UserType.STUDENT
                     )
@@ -243,7 +243,7 @@ class ClassRoomService(
                 envelopSendService.sendMessageQueue(
                     Envelop(
                         classRoomId = classRoomId,
-                        msgType = MessageType.UPDATE_CLASS_GOAL,
+                        msgType = MessageType.CLASS_GOAL,
                         data = saved,
                         userType = UserType.STUDENT
                     )
@@ -264,7 +264,7 @@ class ClassRoomService(
                 envelopSendService.sendMessageQueue(
                     Envelop(
                         classRoomId = classRoomId,
-                        msgType = MessageType.DELETE_CLASS_GOAL,
+                        msgType = MessageType.CLASS_GOAL,
                         data = it,
                         userType = UserType.STUDENT
                     )
@@ -417,7 +417,15 @@ class ClassRoomService(
      * @param badge : 배지 정보
      */
     fun sendBadge(classRoomId: String, badge: Badge): Mono<Badge?> {
-        return badgeRepository.save(badge.apply { this.classRoomId = classRoomId })
+        return badgeRepository.findByClassRoomIdAndUserSeqAndBadgeType(classRoomId, badge.userSeq, badge.badgeType)
+            .handle { find, sink ->
+                if (find != null) {
+                    sink.error(BadRequestException("이미 배지를 획득하였습니다."))
+                } else {
+                    sink.next(badge.apply { this.classRoomId = classRoomId })
+                }
+            }
+            .switchIfEmpty { badgeRepository.save(badge.apply { this.classRoomId = classRoomId }) }
             .doOnSuccess {
                 envelopSendService.sendMessageQueue(
                     Envelop(

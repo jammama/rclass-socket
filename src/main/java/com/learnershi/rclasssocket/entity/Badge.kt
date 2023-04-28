@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document
  */
 @Document
 class Badge {
-    val id: String? = null
+    var id: String? = null
 
     // 교실 id
     var classRoomId: String? = null
@@ -18,7 +18,4 @@ class Badge {
 
     // 뱃지 타입
     var badgeType: BadgeType = BadgeType.NONE
-    fun getBadgeType(): String {
-        return badgeType.value
-    }
 }

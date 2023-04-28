@@ -14,5 +14,5 @@ interface BadgeRepository : ReactiveMongoRepository<Badge?, String?> {
         classRoomId: String?,
         userSeq: String?,
         badgeType: BadgeType?
-    ): Mono<Badge?>?
+    ): Mono<Badge?>
 }
