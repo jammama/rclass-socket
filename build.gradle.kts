@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     id("org.springframework.boot") version "3.0.2"
@@ -67,4 +68,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+tasks.getByName<BootJar>("bootJar") {
+    enabled = true
+}
 
+tasks.getByName<Jar>("jar") {
+    enabled = false
+}
