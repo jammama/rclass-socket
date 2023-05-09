@@ -1,5 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
+import java.text.SimpleDateFormat
+import java.util.*
 
 plugins {
     id("org.springframework.boot") version "3.0.2"
@@ -11,8 +13,12 @@ plugins {
 }
 
 group = "com.learnershi"
-version = "0.0.1-SNAPSHOT"
+version = getDate()
 java.sourceCompatibility = JavaVersion.VERSION_17
+
+fun getDate(): String {
+    return SimpleDateFormat("dd.MM.yyyy").format(Date())
+}
 
 repositories {
     mavenCentral()
@@ -70,6 +76,7 @@ tasks.withType<Test> {
 
 tasks.getByName<BootJar>("bootJar") {
     enabled = true
+    launchScript()
 }
 
 tasks.getByName<Jar>("jar") {
