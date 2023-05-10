@@ -1,7 +1,7 @@
 
 #port
 server:
-    port: 1122
+    port: 6000
 
 #mongodb
 spring:
