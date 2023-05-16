@@ -50,7 +50,6 @@ class ServerResult : LinkedHashMap<String?, Any>() {
             currentTime
         // Sort
         val result: MutableMap<String?, Any> = this.entries.stream()
-            .filter { e: Map.Entry<String?, Any> -> e.value != null }
             .collect(
                 Collectors.toMap(
                     Function<Map.Entry<String?, Any>, String?> { e: Map.Entry<String?, Any> -> e.key },

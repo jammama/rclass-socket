@@ -6,6 +6,7 @@ import com.learnershi.rclasssocket.entity.enums.MiniWindowType
 import com.learnershi.rclasssocket.log.Log
 import com.learnershi.rclasssocket.service.ClassRoomService
 import com.learnershi.rclasssocket.service.SocketService
+import org.reactivestreams.Publisher
 import org.springframework.data.domain.PageImpl
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
@@ -13,6 +14,7 @@ import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.messaging.rsocket.RSocketRequester
 import org.springframework.messaging.rsocket.annotation.ConnectMapping
 import org.springframework.stereotype.Controller
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 
@@ -469,10 +471,19 @@ class SocketConnectionController(
      *
      * @param envelop 메세지
      */
-    @MessageMapping("/test/{classRoomId}")
+    @MessageMapping("test/{classRoomId}")
     fun sendMessage(envelop: Envelop) {
         envelopSendService.sendMessageQueue(envelop)
     }
 
-
+    /**
+     * 테스트용: RequestChannel test
+     *
+     * @param envelop 메세지
+     */
+    @MessageMapping("drawing")
+    fun getDraw(payloads: Publisher<Any?>): Flux<Any?> {
+        log.info("getDraw: {}", payloads)
+        return Flux.from(payloads)
+    }
 }
