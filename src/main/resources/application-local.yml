@@ -37,5 +37,14 @@ springdoc:
     swagger-ui:
         path: swagger.html
 
-
+#Log
+logging:
+    config: classpath:logback-local.xml
+    level:
+        com.learnershi.oflh: DEBUG
+        org.springframework.web: INFO
+        org.hibernate:
+            SQL : DEBUG
+            type: trace
+        jdbc.resultset: OFF
 
