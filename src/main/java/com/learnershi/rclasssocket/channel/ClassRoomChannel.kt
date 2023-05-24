@@ -30,7 +30,7 @@ class ClassRoomChannel(
      * @param envelop 메세지 객체
      */
     fun send(envelop: Envelop) {
-        log.info("ClassRoomChannel.send - msgType: {}", envelop.msgType)
+        log.debug("ClassRoomChannel.send - msgType: {}", envelop.msgType)
         val classRoomId = envelop.classRoomId
         getClassRoomUsersByType(classRoomId, envelop.userType).subscribe { userSessions: Collection<UserSession?> ->
             userSessions.map { r: UserSession? -> r?.let { sendToRequester(it.requester, envelop) } }
@@ -43,7 +43,7 @@ class ClassRoomChannel(
      * @param envelop 메세지 객체
      */
     fun sendToRequester(requester: RSocketRequester, envelop: Envelop) {
-        log.info("send to client {}", envelop.userType.toString())
+        log.debug("send to client {}", envelop.userType.toString())
         requester
             .route("")
             .data(envelop)

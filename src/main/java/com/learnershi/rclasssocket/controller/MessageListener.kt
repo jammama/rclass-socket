@@ -25,7 +25,7 @@ class MessageListener(
      */
     @KafkaListener(topicPartitions = [TopicPartition(topic = TOPIC, partitions = ["0"])])
     fun consume(envelop: Envelop) {
-        log.info("MessageListener.consume - envelop: {}", envelop)
+        log.debug("MessageListener.consume - envelop: {}", envelop)
         classRoomChannel.send(envelop)
     }
 

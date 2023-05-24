@@ -45,7 +45,7 @@ class ClassRoomService(
 
 
     fun createClassRoom(userSeq: String, userName: String): Mono<ClassRoom> {
-        log.info("create class - {} {}", userSeq, userName)
+        log.debug("create class - {} {}", userSeq, userName)
         val newClassRoom = ClassRoom(
             teacherSeq = userSeq,
             teacherName = userName,
