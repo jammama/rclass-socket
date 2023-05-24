@@ -63,14 +63,14 @@ class SocketConnectionController(
      */
     @ConnectMapping
     fun connect(requester: RSocketRequester) {
-        log.info("connected")
+        log.debug("connected")
         requester.rsocket()!!
             .onClose()
             .doFirst {
-                log.info("welcome, stranger!")
+                log.debug("welcome, stranger!")
             }
             .doFinally {
-                log.info("goodbye, stranger!")
+                log.debug("goodbye, stranger!")
             }
             .subscribe()
     }
@@ -96,7 +96,7 @@ class SocketConnectionController(
      */
     @MessageMapping("share/studyAction")
     fun shareStudyAction(envelop: Envelop) {
-        log.info("Share action: {}", envelop)
+        log.debug("Share action: {}", envelop)
         envelopSendService.sendMessageQueue(envelop)
     }
 
@@ -109,7 +109,7 @@ class SocketConnectionController(
     fun getClassRoomInfo(
         @DestinationVariable classRoomId: String,
     ): Mono<ClassRoom?> {
-        log.info("getClassRoomInfo: {}", classRoomId)
+        log.debug("getClassRoomInfo: {}", classRoomId)
         return classRoomService.getClassRoom(classRoomId)
     }
 
@@ -122,7 +122,7 @@ class SocketConnectionController(
     fun getClassRoomSessionUsers(
         @DestinationVariable classRoomId: String,
     ): Mono<Collection<User>?> {
-        log.info("getClassRoomSessionUsers: {}", classRoomId)
+        log.debug("getClassRoomSessionUsers: {}", classRoomId)
         return classRoomService.getClassRoomSessionUsers(classRoomId)
     }
 
@@ -135,7 +135,7 @@ class SocketConnectionController(
     fun getStudyDataMap(
         @DestinationVariable classRoomId: String,
     ): Mono<ClassStudyDataMap?> {
-        log.info("getStudyDataMap: {}", classRoomId)
+        log.debug("getStudyDataMap: {}", classRoomId)
         return classRoomService.getStudyDataMap(classRoomId)
     }
 
@@ -151,7 +151,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload classRoom: ClassRoom
     ): Mono<ClassRoom> {
-        log.info("changeClassRoomStatus: {}", classRoomId)
+        log.debug("changeClassRoomStatus: {}", classRoomId)
         return classRoomService.updateClassRoom(classRoomId, classRoom)
     }
 
@@ -164,7 +164,7 @@ class SocketConnectionController(
     fun getClassRoomLog(
         @DestinationVariable classRoomId: String,
     ): Mono<MutableList<ClassRoomLog?>> {
-        log.info("getClassRoomLog: {}", classRoomId)
+        log.debug("getClassRoomLog: {}", classRoomId)
         return classRoomService.getClassLogList(classRoomId)
     }
 
@@ -179,7 +179,7 @@ class SocketConnectionController(
         @DestinationVariable tabIndex: Int,
         @DestinationVariable pageIndex: Int,
     ): Mono<Memo?> {
-        log.info("getClassRoomMemo: {}", classRoomId)
+        log.debug("getClassRoomMemo: {}", classRoomId)
         return classRoomService.getMemo(classRoomId, tabIndex, pageIndex)
     }
 
@@ -193,7 +193,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload memo: Memo
     ): Mono<Memo?> {
-        log.info("sendClassRoomMemo: {}", classRoomId)
+        log.debug("sendClassRoomMemo: {}", classRoomId)
         return classRoomService.sendMemo(classRoomId, memo)
     }
 
@@ -208,7 +208,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload memo: Memo
     ): Mono<Memo?> {
-        log.info("deleteClassRoomMemo: {}", classRoomId)
+        log.debug("deleteClassRoomMemo: {}", classRoomId)
         return classRoomService.deleteMemo(classRoomId, memo)
     }
 
@@ -221,7 +221,7 @@ class SocketConnectionController(
     fun getClassGoalList(
         @DestinationVariable classRoomId: String,
     ): Mono<MutableList<ClassGoal?>> {
-        log.info("getClassGoalList: {}", classRoomId)
+        log.debug("getClassGoalList: {}", classRoomId)
         return classRoomService.getClassGoalList(classRoomId)
     }
 
@@ -236,7 +236,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload classGoal: ClassGoal
     ): Mono<ClassGoal?> {
-        log.info("createClassGoal: {}", classRoomId)
+        log.debug("createClassGoal: {}", classRoomId)
         return classRoomService.createClassGoal(classRoomId, classGoal)
     }
 
@@ -251,7 +251,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload classGoal: ClassGoal
     ): Mono<ClassGoal?> {
-        log.info("updateClassGoal: {}", classRoomId)
+        log.debug("updateClassGoal: {}", classRoomId)
         return classRoomService.updateClassGoal(classRoomId, classGoal)
     }
 
@@ -266,7 +266,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload classGoal: ClassGoal
     ): Mono<ClassGoal?> {
-        log.info("deleteClassGoal: {}", classRoomId)
+        log.debug("deleteClassGoal: {}", classRoomId)
         return classRoomService.deleteClassGoal(classRoomId, classGoal)
     }
 
@@ -284,7 +284,7 @@ class SocketConnectionController(
         @DestinationVariable tabIndex: Int,
         @DestinationVariable pageIndex: Int,
     ): Mono<Reveal?> {
-        log.info("getReveal: {}", classRoomId)
+        log.debug("getReveal: {}", classRoomId)
         return classRoomService.getReveal(classRoomId, tabIndex, pageIndex)
     }
 
@@ -298,7 +298,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload reveal: Reveal
     ): Mono<Reveal?> {
-        log.info("sendReveal: {}", classRoomId)
+        log.debug("sendReveal: {}", classRoomId)
         return classRoomService.sendReveal(classRoomId, reveal)
     }
 
@@ -313,7 +313,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload reveal: Reveal
     ): Mono<Reveal?> {
-        log.info("saveReveal: {}", classRoomId)
+        log.debug("saveReveal: {}", classRoomId)
         return classRoomService.saveRevealTmpData(classRoomId, reveal)
     }
 
@@ -328,7 +328,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload reveal: Reveal
     ): Mono<Reveal?> {
-        log.info("deleteReveal: {}", classRoomId)
+        log.debug("deleteReveal: {}", classRoomId)
         return classRoomService.deleteReveal(classRoomId, reveal)
     }
 
@@ -343,7 +343,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload comprehensionQuestion: ComprehensionQuestion
     ): Mono<ComprehensionQuestion?> {
-        log.info("sendComprehensionQuestion: {}", classRoomId)
+        log.debug("sendComprehensionQuestion: {}", classRoomId)
         return classRoomService.sendComprehensionQuestion(classRoomId, comprehensionQuestion)
     }
 
@@ -358,7 +358,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload comprehensionAnswer: ComprehensionAnswer
     ): Mono<ComprehensionAnswer?> {
-        log.info("sendComprehensionAnswer: {}", classRoomId)
+        log.debug("sendComprehensionAnswer: {}", classRoomId)
         return classRoomService.submitComprehensionAnswer(classRoomId, comprehensionAnswer)
     }
 
@@ -371,7 +371,7 @@ class SocketConnectionController(
     fun getComprehensionAnswerList(
         @DestinationVariable classRoomId: String
     ): Mono<MutableList<ComprehensionAnswer?>> {
-        log.info("getComprehensionAnswerList: {}", classRoomId)
+        log.debug("getComprehensionAnswerList: {}", classRoomId)
         return classRoomService.getComprehensionAnswerList(classRoomId)
     }
 
@@ -384,7 +384,7 @@ class SocketConnectionController(
     fun getBadgeList(
         @DestinationVariable classRoomId: String
     ): Mono<MutableList<Badge?>> {
-        log.info("getBadgeList: {}", classRoomId)
+        log.debug("getBadgeList: {}", classRoomId)
         return classRoomService.getBadgeList(classRoomId)
     }
 
@@ -398,7 +398,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload badge: Badge
     ): Mono<Badge?> {
-        log.info("sendBadge: {}", classRoomId)
+        log.debug("sendBadge: {}", classRoomId)
         return classRoomService.sendBadge(classRoomId, badge)
     }
 
@@ -413,7 +413,7 @@ class SocketConnectionController(
         @DestinationVariable classRoomId: String,
         @Payload studyData: StudyData
     ): Mono<ClassStudyDataMap> {
-        log.info("sendStudyData: {}", classRoomId)
+        log.debug("sendStudyData: {}", classRoomId)
         return classRoomService.sendStudyData(classRoomId, studyData)
     }
 
@@ -431,7 +431,7 @@ class SocketConnectionController(
         @DestinationVariable miniWindowType: String,
         @Payload entity: Any?
     ): Mono<Activity?> {
-        log.info("saveActivityLog: {}", classRoomId)
+        log.debug("saveActivityLog: {}", classRoomId)
         return classRoomService.saveActivityLog(classRoomId, MiniWindowType.findByValue(miniWindowType), entity)
     }
 
@@ -446,7 +446,7 @@ class SocketConnectionController(
         @DestinationVariable page: Int,
         @DestinationVariable size: Int
     ): Mono<PageImpl<Activity?>> {
-        log.info("getActivityLog: {}", classRoomId)
+        log.debug("getActivityLog: {}", classRoomId)
         return classRoomService.getActivityLogs(classRoomId, page, size)
     }
 
@@ -460,7 +460,7 @@ class SocketConnectionController(
     fun getDrawPathList(
         @DestinationVariable classRoomId: String,
     ): Mono<MutableList<CanvasDraw?>> {
-        log.info("getDrawPathList: {}", classRoomId)
+        log.debug("getDrawPathList: {}", classRoomId)
         return classRoomService.getCanvasDrawPathList(classRoomId)
     }
 
