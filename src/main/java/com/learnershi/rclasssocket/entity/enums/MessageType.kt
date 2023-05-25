@@ -43,6 +43,7 @@ enum class MessageType {
     READ_SUBMIT,
     TAB_ADD,
     TEXTBOOK_CHANGE,
+    DRAW,
     DRAW_RESET,
 
     CLASS_GOAL,

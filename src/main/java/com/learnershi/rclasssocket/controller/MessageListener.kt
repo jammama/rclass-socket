@@ -3,6 +3,8 @@ package com.learnershi.rclasssocket.controller
 import com.learnershi.rclasssocket.channel.ClassRoomChannel
 import com.learnershi.rclasssocket.entity.common.Envelop
 import com.learnershi.rclasssocket.log.Log
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.annotation.TopicPartition
 import org.springframework.stereotype.Component
@@ -11,10 +13,17 @@ import org.springframework.stereotype.Component
  * Kafka Listener -> Socket Channel
  */
 @Component
+@Configuration
 class MessageListener(
     private val classRoomChannel: ClassRoomChannel
 ) {
     private val log = Log.of(this.javaClass)
+
+    @Value("\${spring.kafka.consumer.bootstrap-servers}")
+    private lateinit var bootstrapServers: String
+
+    @Value("\${spring.kafka.consumer.group-id}")
+    private lateinit var consumerGroup: String
 
     /**
      * Kafka로부터 메세지를 받아
@@ -25,7 +34,7 @@ class MessageListener(
      */
     @KafkaListener(topicPartitions = [TopicPartition(topic = TOPIC, partitions = ["0"])])
     fun consume(envelop: Envelop) {
-        log.info("MessageListener.consume - envelop: {}", envelop)
+        log.debug("MessageListener.consume - envelop: {}", envelop)
         classRoomChannel.send(envelop)
     }
 

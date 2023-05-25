@@ -30,26 +30,28 @@ class ClassRoomChannel(
      * @param envelop 메세지 객체
      */
     fun send(envelop: Envelop) {
-        log.info("ClassRoomChannel.send - msgType: {}", envelop.msgType)
+        log.debug("ClassRoomChannel.send - msgType: {}", envelop.msgType)
         val classRoomId = envelop.classRoomId
         getClassRoomUsersByType(classRoomId, envelop.userType).subscribe { userSessions: Collection<UserSession?> ->
             userSessions.map { r: UserSession? -> r?.let { sendToRequester(it.requester, envelop) } }
         }
     }
+
     /**
-     * userSeq에 해당하는 사용자에게 envelop을 전송한다.
+     * userSeq에 해당하는 사용자에게 envelop을 전송한다. (envelop, 1:1 FnF)
      *
      * @param requester RSocketRequester
      * @param envelop 메세지 객체
      */
     fun sendToRequester(requester: RSocketRequester, envelop: Envelop) {
-        log.info("send to client {}", envelop.userType.toString())
+        log.debug("send to client {}", envelop.userType.toString())
         requester
             .route("")
             .data(envelop)
             .send()
             .subscribe()
     }
+
 
     /**
      * 저장 된 classRoom 내의 UserType별로 유저를 분류한다.
@@ -63,8 +65,18 @@ class ClassRoomChannel(
             .mapNotNull { classRoom: ClassRoom? ->
                 val users = classroomUsersSession.findByClassRoomId(classRoomId)
                 when (type) {
-                    UserType.TEACHER -> users.filter { userSession: UserSession -> classRoom!!.teacherSeq.equals(userSession.user.seq) }
-                    UserType.STUDENT -> users.filter { userSession: UserSession -> !classRoom!!.teacherSeq.equals(userSession.user.seq) }
+                    UserType.TEACHER -> users.filter { userSession: UserSession ->
+                        classRoom!!.teacherSeq.equals(
+                            userSession.user.seq
+                        )
+                    }
+
+                    UserType.STUDENT -> users.filter { userSession: UserSession ->
+                        !classRoom!!.teacherSeq.equals(
+                            userSession.user.seq
+                        )
+                    }
+
                     else -> users
                 }
             }
