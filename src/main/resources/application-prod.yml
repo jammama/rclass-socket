@@ -49,3 +49,8 @@ logging:
             SQL : DEBUG
             type: trace
         jdbc.resultset: OFF
+
+file:
+    upload:
+        path: "file:/home/learnershi/apps/rclass-file/upload/"
+        base-url: "https://rclass.co.kr/upload/"

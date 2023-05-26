@@ -1,7 +1,6 @@
-
 #port
 server:
-    port: 1122
+    port: 6001
 
 #mongodb
 spring:
@@ -39,6 +38,8 @@ springdoc:
 
 #Log
 logging:
+    file:
+        path: /home/learnershi/apps/rclass-socket/logs/
     config: classpath:logback-local.xml
     level:
         com.learnershi.oflh: DEBUG
@@ -47,4 +48,9 @@ logging:
             SQL : DEBUG
             type: trace
         jdbc.resultset: OFF
+
+file:
+    upload:
+        path: C:/rclass-file/upload/
+        base-url: C:/rclass-file/upload/
 

@@ -3,24 +3,31 @@ package com.learnershi.rclasssocket.controller
 import com.learnershi.rclasssocket.entity.*
 import com.learnershi.rclasssocket.entity.common.Envelop
 import com.learnershi.rclasssocket.entity.enums.MiniWindowType
+import com.learnershi.rclasssocket.entity.enums.UploadStatus
 import com.learnershi.rclasssocket.log.Log
 import com.learnershi.rclasssocket.service.ClassRoomService
+import com.learnershi.rclasssocket.service.FileUploadService
 import com.learnershi.rclasssocket.service.SocketService
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.domain.PageImpl
 import org.springframework.messaging.handler.annotation.DestinationVariable
+import org.springframework.messaging.handler.annotation.Headers
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.messaging.rsocket.RSocketRequester
 import org.springframework.messaging.rsocket.annotation.ConnectMapping
 import org.springframework.stereotype.Controller
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.nio.file.Paths
 
 
 @Controller
 class SocketConnectionController(
     private val classRoomService: ClassRoomService,
     private val socketService: SocketService,
-    private val envelopSendService: EnvelopSendService
+    private val envelopSendService: EnvelopSendService,
+    private val fileUploadService: FileUploadService
 ) {
 
     val log = Log.of(this.javaClass)
@@ -465,13 +472,14 @@ class SocketConnectionController(
     }
 
     /**
-     * 테스트용: envelop 구조의 메세지를 전송하고 받는다.
-     *
-     * @param envelop 메세지
+     * 파일 업로드
      */
-    @MessageMapping("test/{classRoomId}")
-    fun sendMessage(envelop: Envelop) {
-        envelopSendService.sendMessageQueue(envelop)
+    @MessageMapping("file/upload")
+    fun upload(@Headers headers: Map<String, Any>, @Payload file : Flux<DataBuffer>): Flux<String> {
+        var fileName = headers.get("fileName") as String
+        var fileExt = headers.get("fileExt") as String
+        val path = Paths.get("$fileName.$fileExt")
+        return Flux.concat(fileUploadService.uploadFile(path, file), Mono.just(fileUploadService.uploadPath(path)))
+            .onErrorReturn(UploadStatus.FAILED.toString())
     }
-
 }

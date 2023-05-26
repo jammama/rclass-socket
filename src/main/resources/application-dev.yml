@@ -50,4 +50,7 @@ logging:
             type: trace
         jdbc.resultset: OFF
 
-
+file:
+    upload:
+        path: "file:/apps/rclass-file/upload/"
+        base-url: "https://tssue.rclass.co.kr/upload/"
