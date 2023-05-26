@@ -37,5 +37,17 @@ springdoc:
     swagger-ui:
         path: swagger.html
 
+#Log
+logging:
+    file:
+        path: /apps/rclass-socket/logs/
+    config: classpath:logback-dev.xml
+    level:
+        com.learnershi.oflh: DEBUG
+        org.springframework.web: INFO
+        org.hibernate:
+            SQL : DEBUG
+            type: trace
+        jdbc.resultset: OFF
 
 

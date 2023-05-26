@@ -27,7 +27,7 @@ class UserService(
         val userType = UserType.valueOf(request.pathVariable("userType"))
         val page = request.queryParam("page")
         val size = request.queryParam("size")
-        log.info("get class - {}", classRoomId)
+        log.debug("get class - {}", classRoomId)
         // TODO : 헤헤 하기 싫어서 그냥 냅둠
         return classRoomRepository.findById(classRoomId).flatMap { r -> ServerResult.success().data(r).build() }
     }
